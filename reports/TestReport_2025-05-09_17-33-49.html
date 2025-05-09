@@ -1,0 +1,1144 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>UI Test Automation Report</title>
+<link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/extent-framework/extent-github-cdn@b00a2d0486596e73dd7326beacf352c639623a0e/commons/img/logo.png">
+<link rel="shortcut icon" href="https://cdn.jsdelivr.net/gh/extent-framework/extent-github-cdn@b00a2d0486596e73dd7326beacf352c639623a0e/commons/img/logo.png">
+<link href="https://cdn.jsdelivr.net/gh/extent-framework/extent-github-cdn@ce8b10435bcbae260c334c0d0c6b61d2c19b6168/spark/css/spark-style.css" rel="stylesheet" />
+<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/extent-framework/extent-github-cdn@7cc78ce/spark/js/jsontree.js"></script>
+<style type="text/css"></style></head><body class="spa -report standard">
+  <div class="app">
+    <div class="layout">
+<div class="header navbar">
+<div class="vheader">
+<div class="nav-logo">
+<a href="#">
+<div class="logo" style="background-image: url('https://cdn.jsdelivr.net/gh/extent-framework/extent-github-cdn@b00a2d0486596e73dd7326beacf352c639623a0e/commons/img/logo.png')"></div>
+</a>
+</div>
+<ul class="nav-left">
+<li class="search-box">
+<a class="search-toggle" href="#">
+<i class="search-icon fa fa-search"></i>
+<i class="search-icon-close fa fa-close"></i>
+</a>
+</li>
+<li class="search-input"><input id="search-tests" class="form-control" type="text" placeholder="Search..."></li>
+</ul>
+<ul class="nav-right">
+<li class="m-r-10">
+<a href="#"><span class="badge badge-primary">UI Test Execution Report</span></a>
+</li>
+<li class="m-r-10">
+<a href="#"><span class="badge badge-primary">Friday, May 09, 2025, 05:33 PM (EDT)</span></a>
+</li>
+</ul>
+</div>
+</div><div class="side-nav">
+<div class="side-nav-inner">
+<ul class="side-nav-menu">
+<li class="nav-item dropdown" onclick="toggleView('test-view')">
+<a id="nav-test" class="dropdown-toggle" href="#">
+<span class="ico"><i class="fa fa-list"></i></span>
+</a>
+</li>
+<li class="nav-item dropdown" onclick="toggleView('category-view')">
+<a id="nav-category" class="dropdown-toggle" href="#">
+<span class="ico"><i class="fa fa-tag"></i></span>
+</a>
+</li>
+<li class="nav-item dropdown" onclick="toggleView('author-view')">
+<a id="nav-author" class="dropdown-toggle" href="#">
+<span class="ico"><i class="fa fa-user"></i></span>
+</a>
+</li>
+<li class="nav-item dropdown" onclick="toggleView('dashboard-view')">
+<a id="nav-dashboard" class="dropdown-toggle" href="#">
+<span class="ico"><i class="fa fa-bar-chart"></i></span>
+</a>
+</li>
+</ul>
+</div>
+</div>      <div class="vcontainer">
+        <div class="main-content">
+<div class="test-wrapper row view test-view">
+  <div class="test-list">
+    <div class="test-list-tools">
+<ul class="tools pull-left">
+<li><a href="#"><span class="font-size-14">Tests</span></a></li>
+</ul>
+<ul class="tools text-right">
+<li class="dropdown">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-exclamation-circle"></i></a>
+<ul id="status-toggle" class="dropdown-menu dropdown-md p-v-0">
+<a class="dropdown-item" status="pass" href="#"><span>Pass</span><span class="status success"></span></a>
+<div class="dropdown-divider"></div>
+<a status="clear" class="dropdown-item" href="#"><span>Clear</span><span class="pull-right"><i class="fa fa-close"></i></span></a>
+</ul>
+</li>
+<li class="dropdown">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i></a>
+<ul id="author-toggle" class="dropdown-menu dropdown-md p-v-0">
+<a class="dropdown-item" href="#">AutomationFramework</a>
+</ul>
+</li>
+<li class="dropdown">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-tag"></i></a>
+<ul id="tag-toggle" class="dropdown-menu dropdown-md p-v-0">
+<a class="dropdown-item" href="#">DiceTests</a>
+</ul>
+</li>
+</ul>
+</div>    <div class="test-list-wrapper scrollable">
+      <ul class="test-list-item">
+        <li class="test-item"  status="pass" test-id="1"
+          author="AutomationFramework"
+          tag="DiceTests"
+          device="">
+          <div class="test-detail">
+            <p class="name">Dice Login Test</p>
+            <p class="text-sm">
+              <span>5:33:50 PM</span> / <span>00:00:21:489</span>
+              <span class="badge pass-bg log float-right">Pass</span>
+            </p>
+          </div>
+          <div class="test-contents d-none">
+<div class="detail-head">
+<div class="p-v-10">
+<div class="info">
+<h5 class="test-status text-pass">Dice Login Test</h5>
+<span class='badge badge-success'>05.09.2025 5:33:50 PM</span>
+<span class='badge badge-danger'>05.09.2025 5:34:11 PM</span>
+<span class='badge badge-default'>00:00:21:489</span>
+&middot; <span class='uri-anchor badge badge-default'>#test-id=1</span>
+<span title='Skip to the next failed step' class='badge badge-danger pointer float-right ne ml-1'><i class="fa fa-fast-forward"></i></span>
+<span title='Collapse all nodes' class='badge badge-default pointer float-right ct ml-1'><i class="fa fa-compress"></i></span>
+<span title='Expand all nodes' class='badge badge-default pointer float-right et'><i class="fa fa-expand"></i></span>
+</div>
+<div class="m-t-15"><span class="badge badge-pill badge-default">AutomationFramework</span>
+<span class="badge badge-pill badge-default">DiceTests</span></div>
+<div class="m-t-10 m-l-5">Verify login functionality on Dice</div>
+</div>
+</div>    <div class="row mb-3"><div class="col-md-3">
+<img data-featherlight='screenshots/Dice_Login_Page_Initial_20250509_173353.png' src="screenshots/Dice_Login_Page_Initial_20250509_173353.png">
+    <div class="title">Initial Login Page</div>
+    </div></div>
+    <div class="row mb-3"><div class="col-md-3">
+<img data-featherlight='screenshots/Verified_Dice_Login_Page_20250509_173357.png' src="screenshots/Verified_Dice_Login_Page_20250509_173357.png">
+    <div class="title">Verified Login Page</div>
+    </div></div>
+    <div class="row mb-3"><div class="col-md-3">
+<img data-featherlight='screenshots/Login_Successful_20250509_173359.png' src="screenshots/Login_Successful_20250509_173359.png">
+    <div class="title">Login Success</div>
+    </div></div>
+<div class="detail-body mt-4">
+<table class="table table-sm">
+  <thead><tr><th class="status-col">Status</th><th class="timestamp-col">Timestamp</th><th class="details-col">Details</th></tr></thead>
+  <tbody>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:33:50 PM</td>
+        <td>
+          Test data loaded for test: TC001
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:33:50 PM</td>
+        <td>
+          Found 4 keywords to execute
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:33:50 PM</td>
+        <td>
+          Executing keyword: OPEN_BROWSER
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:33:50 PM</td>
+        <td>
+          Executing OPEN_BROWSER keyword
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:33:52 PM</td>
+        <td>
+          Browser opened successfully
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:33:52 PM</td>
+        <td>
+          Keyword executed successfully: OPEN_BROWSER
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:33:52 PM</td>
+        <td>
+          Executing keyword: NAVIGATE_TO_DICE_LOGIN
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:33:52 PM</td>
+        <td>
+          Executing NAVIGATE_TO_DICE_LOGIN keyword
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:33:53 PM</td>
+        <td>
+          Navigated to Dice login page: https://www.dice.com/dashboard/login
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:33:57 PM</td>
+        <td>
+          Dice login page loaded successfully
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:33:57 PM</td>
+        <td>
+          Keyword executed successfully: NAVIGATE_TO_DICE_LOGIN
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:33:57 PM</td>
+        <td>
+          Executing keyword: LOGIN_TO_DICE
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:33:57 PM</td>
+        <td>
+          Executing LOGIN_TO_DICE keyword
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:33:57 PM</td>
+        <td>
+          Attempting to login with email: zahidsdet@gmail.com
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:33:59 PM</td>
+        <td>
+          Successfully logged in to Dice
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:11 PM</td>
+        <td>
+          Home page loaded successfully after login
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:11 PM</td>
+        <td>
+          Keyword executed successfully: LOGIN_TO_DICE
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:11 PM</td>
+        <td>
+          Executing keyword: CLOSE_BROWSER
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:11 PM</td>
+        <td>
+          Executing CLOSE_BROWSER keyword
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:11 PM</td>
+        <td>
+          Browser closed successfully
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:11 PM</td>
+        <td>
+          Keyword executed successfully: CLOSE_BROWSER
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:11 PM</td>
+        <td>
+          Test executed successfully
+        </td>
+      </tr>
+  </tbody>
+</table>
+</div>
+          </div>
+        </li>
+        <li class="test-item"  status="pass" test-id="2"
+          author="AutomationFramework"
+          tag="DiceTests"
+          device="">
+          <div class="test-detail">
+            <p class="name">Dice Profile Verification</p>
+            <p class="text-sm">
+              <span>5:34:11 PM</span> / <span>00:00:19:628</span>
+              <span class="badge pass-bg log float-right">Pass</span>
+            </p>
+          </div>
+          <div class="test-contents d-none">
+<div class="detail-head">
+<div class="p-v-10">
+<div class="info">
+<h5 class="test-status text-pass">Dice Profile Verification</h5>
+<span class='badge badge-success'>05.09.2025 5:34:11 PM</span>
+<span class='badge badge-danger'>05.09.2025 5:34:31 PM</span>
+<span class='badge badge-default'>00:00:19:628</span>
+&middot; <span class='uri-anchor badge badge-default'>#test-id=2</span>
+<span title='Skip to the next failed step' class='badge badge-danger pointer float-right ne ml-1'><i class="fa fa-fast-forward"></i></span>
+<span title='Collapse all nodes' class='badge badge-default pointer float-right ct ml-1'><i class="fa fa-compress"></i></span>
+<span title='Expand all nodes' class='badge badge-default pointer float-right et'><i class="fa fa-expand"></i></span>
+</div>
+<div class="m-t-15"><span class="badge badge-pill badge-default">AutomationFramework</span>
+<span class="badge badge-pill badge-default">DiceTests</span></div>
+<div class="m-t-10 m-l-5">Verify user profile after login</div>
+</div>
+</div>    <div class="row mb-3"><div class="col-md-3">
+<img data-featherlight='screenshots/Dice_Login_Page_Initial_20250509_173413.png' src="screenshots/Dice_Login_Page_Initial_20250509_173413.png">
+    <div class="title">Initial Login Page</div>
+    </div></div>
+    <div class="row mb-3"><div class="col-md-3">
+<img data-featherlight='screenshots/Verified_Dice_Login_Page_20250509_173417.png' src="screenshots/Verified_Dice_Login_Page_20250509_173417.png">
+    <div class="title">Verified Login Page</div>
+    </div></div>
+    <div class="row mb-3"><div class="col-md-3">
+<img data-featherlight='screenshots/Login_Successful_20250509_173418.png' src="screenshots/Login_Successful_20250509_173418.png">
+    <div class="title">Login Success</div>
+    </div></div>
+    <div class="row mb-3"><div class="col-md-3">
+<img data-featherlight='screenshots/Profile_Verification_Successful_20250509_173431.png' src="screenshots/Profile_Verification_Successful_20250509_173431.png">
+    <div class="title">Profile Verification Successful</div>
+    </div></div>
+<div class="detail-body mt-4">
+<table class="table table-sm">
+  <thead><tr><th class="status-col">Status</th><th class="timestamp-col">Timestamp</th><th class="details-col">Details</th></tr></thead>
+  <tbody>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:11 PM</td>
+        <td>
+          Test data loaded for test: TC002
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:12 PM</td>
+        <td>
+          Found 5 keywords to execute
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:12 PM</td>
+        <td>
+          Executing keyword: OPEN_BROWSER
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:12 PM</td>
+        <td>
+          Executing OPEN_BROWSER keyword
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:13 PM</td>
+        <td>
+          Browser opened successfully
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:13 PM</td>
+        <td>
+          Keyword executed successfully: OPEN_BROWSER
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:13 PM</td>
+        <td>
+          Executing keyword: NAVIGATE_TO_DICE_LOGIN
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:13 PM</td>
+        <td>
+          Executing NAVIGATE_TO_DICE_LOGIN keyword
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:13 PM</td>
+        <td>
+          Navigated to Dice login page: https://www.dice.com/dashboard/login
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:17 PM</td>
+        <td>
+          Dice login page loaded successfully
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:17 PM</td>
+        <td>
+          Keyword executed successfully: NAVIGATE_TO_DICE_LOGIN
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:17 PM</td>
+        <td>
+          Executing keyword: LOGIN_TO_DICE
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:17 PM</td>
+        <td>
+          Executing LOGIN_TO_DICE keyword
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:17 PM</td>
+        <td>
+          Attempting to login with email: zahidsdet@gmail.com
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:18 PM</td>
+        <td>
+          Successfully logged in to Dice
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:31 PM</td>
+        <td>
+          Home page loaded successfully after login
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:31 PM</td>
+        <td>
+          Keyword executed successfully: LOGIN_TO_DICE
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:31 PM</td>
+        <td>
+          Executing keyword: VERIFY_USER_PROFILE
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:31 PM</td>
+        <td>
+          Executing VERIFY_USER_PROFILE keyword
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:31 PM</td>
+        <td>
+          Retrieved username from profile: Zahid
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:31 PM</td>
+        <td>
+          User profile verification successful
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:31 PM</td>
+        <td>
+          Keyword executed successfully: VERIFY_USER_PROFILE
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:31 PM</td>
+        <td>
+          Executing keyword: CLOSE_BROWSER
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:31 PM</td>
+        <td>
+          Executing CLOSE_BROWSER keyword
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:31 PM</td>
+        <td>
+          Browser closed successfully
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:31 PM</td>
+        <td>
+          Keyword executed successfully: CLOSE_BROWSER
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:31 PM</td>
+        <td>
+          Test executed successfully
+        </td>
+      </tr>
+  </tbody>
+</table>
+</div>
+          </div>
+        </li>
+        <li class="test-item"  status="pass" test-id="3"
+          author="AutomationFramework"
+          tag="DiceTests"
+          device="">
+          <div class="test-detail">
+            <p class="name">Dice Search Functionality</p>
+            <p class="text-sm">
+              <span>5:34:31 PM</span> / <span>00:00:22:780</span>
+              <span class="badge pass-bg log float-right">Pass</span>
+            </p>
+          </div>
+          <div class="test-contents d-none">
+<div class="detail-head">
+<div class="p-v-10">
+<div class="info">
+<h5 class="test-status text-pass">Dice Search Functionality</h5>
+<span class='badge badge-success'>05.09.2025 5:34:31 PM</span>
+<span class='badge badge-danger'>05.09.2025 5:34:54 PM</span>
+<span class='badge badge-default'>00:00:22:780</span>
+&middot; <span class='uri-anchor badge badge-default'>#test-id=3</span>
+<span title='Skip to the next failed step' class='badge badge-danger pointer float-right ne ml-1'><i class="fa fa-fast-forward"></i></span>
+<span title='Collapse all nodes' class='badge badge-default pointer float-right ct ml-1'><i class="fa fa-compress"></i></span>
+<span title='Expand all nodes' class='badge badge-default pointer float-right et'><i class="fa fa-expand"></i></span>
+</div>
+<div class="m-t-15"><span class="badge badge-pill badge-default">AutomationFramework</span>
+<span class="badge badge-pill badge-default">DiceTests</span></div>
+<div class="m-t-10 m-l-5">Verify job search functionality</div>
+</div>
+</div>    <div class="row mb-3"><div class="col-md-3">
+<img data-featherlight='screenshots/Dice_Login_Page_Initial_20250509_173433.png' src="screenshots/Dice_Login_Page_Initial_20250509_173433.png">
+    <div class="title">Initial Login Page</div>
+    </div></div>
+    <div class="row mb-3"><div class="col-md-3">
+<img data-featherlight='screenshots/Verified_Dice_Login_Page_20250509_173436.png' src="screenshots/Verified_Dice_Login_Page_20250509_173436.png">
+    <div class="title">Verified Login Page</div>
+    </div></div>
+    <div class="row mb-3"><div class="col-md-3">
+<img data-featherlight='screenshots/Login_Successful_20250509_173438.png' src="screenshots/Login_Successful_20250509_173438.png">
+    <div class="title">Login Success</div>
+    </div></div>
+    <div class="row mb-3"><div class="col-md-3">
+<img data-featherlight='screenshots/Search_Performed_20250509_173453.png' src="screenshots/Search_Performed_20250509_173453.png">
+    <div class="title">Search Performed</div>
+    </div></div>
+    <div class="row mb-3"><div class="col-md-3">
+<img data-featherlight='screenshots/Search_Results_Verified_20250509_173453.png' src="screenshots/Search_Results_Verified_20250509_173453.png">
+    <div class="title">Search Results Verified</div>
+    </div></div>
+<div class="detail-body mt-4">
+<table class="table table-sm">
+  <thead><tr><th class="status-col">Status</th><th class="timestamp-col">Timestamp</th><th class="details-col">Details</th></tr></thead>
+  <tbody>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:31 PM</td>
+        <td>
+          Test data loaded for test: TC003
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:31 PM</td>
+        <td>
+          Found 6 keywords to execute
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:31 PM</td>
+        <td>
+          Executing keyword: OPEN_BROWSER
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:31 PM</td>
+        <td>
+          Executing OPEN_BROWSER keyword
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:32 PM</td>
+        <td>
+          Browser opened successfully
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:32 PM</td>
+        <td>
+          Keyword executed successfully: OPEN_BROWSER
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:32 PM</td>
+        <td>
+          Executing keyword: NAVIGATE_TO_DICE_LOGIN
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:32 PM</td>
+        <td>
+          Executing NAVIGATE_TO_DICE_LOGIN keyword
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:33 PM</td>
+        <td>
+          Navigated to Dice login page: https://www.dice.com/dashboard/login
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:36 PM</td>
+        <td>
+          Dice login page loaded successfully
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:36 PM</td>
+        <td>
+          Keyword executed successfully: NAVIGATE_TO_DICE_LOGIN
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:36 PM</td>
+        <td>
+          Executing keyword: LOGIN_TO_DICE
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:36 PM</td>
+        <td>
+          Executing LOGIN_TO_DICE keyword
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:36 PM</td>
+        <td>
+          Attempting to login with email: zahidsdet@gmail.com
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:38 PM</td>
+        <td>
+          Successfully logged in to Dice
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:50 PM</td>
+        <td>
+          Home page loaded successfully after login
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:50 PM</td>
+        <td>
+          Keyword executed successfully: LOGIN_TO_DICE
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:50 PM</td>
+        <td>
+          Executing keyword: SEARCH_JOBS
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:50 PM</td>
+        <td>
+          Executing SEARCH_JOBS keyword
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:50 PM</td>
+        <td>
+          Searching for jobs with term: SDET
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:53 PM</td>
+        <td>
+          Job search performed successfully for term: SDET
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:53 PM</td>
+        <td>
+          Search results page loaded successfully
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:53 PM</td>
+        <td>
+          Keyword executed successfully: SEARCH_JOBS
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:53 PM</td>
+        <td>
+          Executing keyword: VERIFY_SEARCH_RESULTS
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:53 PM</td>
+        <td>
+          Executing VERIFY_SEARCH_RESULTS keyword
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:53 PM</td>
+        <td>
+          Search results verification successful. Found 172 results.
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:54 PM</td>
+        <td>
+          Keyword executed successfully: VERIFY_SEARCH_RESULTS
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:54 PM</td>
+        <td>
+          Executing keyword: CLOSE_BROWSER
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log info-bg">Info</span></td>
+        <td>5:34:54 PM</td>
+        <td>
+          Executing CLOSE_BROWSER keyword
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:54 PM</td>
+        <td>
+          Browser closed successfully
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:54 PM</td>
+        <td>
+          Keyword executed successfully: CLOSE_BROWSER
+        </td>
+      </tr>
+      <tr class="event-row">
+        <td><span class="badge log pass-bg">Pass</span></td>
+        <td>5:34:54 PM</td>
+        <td>
+          Test executed successfully
+        </td>
+      </tr>
+  </tbody>
+</table>
+</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+<div class="test-content scrollable">
+<div class="test-content-tools">
+<ul><li><a class="back-to-test" href="#"><i class="fa fa-arrow-left"></i></a></li></ul>
+</div>
+<div class="test-content-detail"><div class="detail-body"></div></div>
+</div></div>
+<div class="test-wrapper row view category-view attributes-view">
+<div class="test-list">
+<div class="test-list-tools">
+<ul class="tools pull-left"><li><a href=""><span class="font-size-14">Category</span></a></li></ul>
+<ul class="tools text-right"><li><a href="#"><span class="badge badge-primary">1</span></a></li></ul>
+</div>
+<div class="test-list-wrapper scrollable">
+<ul class="test-list-item">
+<li class="test-item">
+<div class="test-detail">
+<span class="meta">
+<span class='badge log pass-bg'>3</span>
+</span>
+<p class="name">DiceTests</p>
+<p class="duration text-sm">3 tests</p>
+</div>
+<div class="test-contents d-none">
+<div class="info">
+<h4>DiceTests</h4>
+<span status="pass" class='badge log pass-bg'>3 passed</span>
+</div>
+<table class='table table-sm mt-4'>
+<thead>
+<tr>
+<th class="status-col">Status</th>
+<th class="timestamp-col">Timestamp</th>
+<th>TestName</th>
+</tr>
+</thead>
+<tbody>
+<tr class="tag-test-status" status="pass">
+<td><span class="badge log pass-bg">Pass</span></td>
+<td>17:33:50 PM</td>
+<td>
+<a href="#" class="linked" test-id='1' id='1'>Dice Login Test</a>
+</td>
+</tr>
+<tr class="tag-test-status" status="pass">
+<td><span class="badge log pass-bg">Pass</span></td>
+<td>17:34:11 PM</td>
+<td>
+<a href="#" class="linked" test-id='2' id='2'>Dice Profile Verification</a>
+</td>
+</tr>
+<tr class="tag-test-status" status="pass">
+<td><span class="badge log pass-bg">Pass</span></td>
+<td>17:34:31 PM</td>
+<td>
+<a href="#" class="linked" test-id='3' id='3'>Dice Search Functionality</a>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="test-content scrollable">
+<div class="test-content-detail">
+<div class="detail-body"></div>
+</div>
+</div>
+</div><div class="test-wrapper row view author-view attributes-view">
+<div class="test-list">
+<div class="test-list-tools">
+<ul class="tools pull-left"><li><a href=""><span class="font-size-14">Author</span></a></li></ul>
+<ul class="tools text-right"><li><a href="#"><span class="badge badge-primary">1</span></a></li></ul>
+</div>
+<div class="test-list-wrapper scrollable">
+<ul class="test-list-item">
+<li class="test-item">
+<div class="test-detail">
+<span class="meta">
+<span class='badge log pass-bg'>3</span>
+</span>
+<p class="name">AutomationFramework</p>
+<p class="duration text-sm">3 tests</p>
+</div>
+<div class="test-contents d-none">
+<div class="info">
+<h4>AutomationFramework</h4>
+<span status="pass" class='badge log pass-bg'>3 passed</span>
+</div>
+<table class='table table-sm mt-4'>
+<thead>
+<tr>
+<th class="status-col">Status</th>
+<th class="timestamp-col">Timestamp</th>
+<th>TestName</th>
+</tr>
+</thead>
+<tbody>
+<tr class="tag-test-status" status="pass">
+<td><span class="badge log pass-bg">Pass</span></td>
+<td>17:33:50 PM</td>
+<td>
+<a href="#" class="linked" test-id='1' id='1'>Dice Login Test</a>
+</td>
+</tr>
+<tr class="tag-test-status" status="pass">
+<td><span class="badge log pass-bg">Pass</span></td>
+<td>17:34:11 PM</td>
+<td>
+<a href="#" class="linked" test-id='2' id='2'>Dice Profile Verification</a>
+</td>
+</tr>
+<tr class="tag-test-status" status="pass">
+<td><span class="badge log pass-bg">Pass</span></td>
+<td>17:34:31 PM</td>
+<td>
+<a href="#" class="linked" test-id='3' id='3'>Dice Search Functionality</a>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="test-content scrollable">
+<div class="test-content-detail">
+<div class="detail-body"></div>
+</div>
+</div>
+</div><div class="container-fluid p-4 view dashboard-view">
+<div class="row">
+<div class="col-md-3">
+<div class="card"><div class="card-body">
+<p class="m-b-0">Started</p>
+<h3>Friday, May 09, 2025, 05:33 PM (EDT)</h3>
+</div></div>
+</div>
+<div class="col-md-3">
+<div class="card"><div class="card-body">
+<p class="m-b-0">Ended</p>
+<h3>Friday, May 09, 2025, 05:34 PM (EDT)</h3>
+</div></div>
+</div>
+<div class="col-md-3">
+<div class="card"><div class="card-body">
+<p class="m-b-0 text-pass">Tests Passed</p>
+<h3>3</h3>
+</div></div>
+</div>
+<div class="col-md-3">
+<div class="card"><div class="card-body">
+<p class="m-b-0 text-fail">Tests Failed</p>
+<h3>0</h3>
+</div></div>
+</div>
+</div>
+<div class="row">
+<div class="col-md-6">
+<div class="card">
+<div class="card-header">
+<h6 class="card-title">Tests</h6>
+</div>
+<div class="card-body">
+<div class="">
+<canvas id='parent-analysis' width='115' height='90'></canvas>
+</div>
+</div>
+<div class="card-footer">
+<div><small data-tooltip='100%'>
+<b>3</b> tests passed
+</small>
+</div>
+<div>
+<small data-tooltip='0%'><b>0</b> tests failed,
+<b>0</b> skipped, <b data-tooltip='0%'>0</b> others
+</small>
+</div>
+</div>
+</div>
+</div>
+<div class="col-md-6">
+<div class="card">
+<div class="card-header">
+<h6 class="card-title">Log events</h6>
+</div>
+<div class="card-body">
+<div class="">
+<canvas id='events-analysis' width='115' height='90'></canvas>
+</div>
+</div>
+<div class="card-footer">
+<div><small data-tooltip='45%'><b>37</b> events passed</small></div>
+<div>
+<small data-tooltip='0%'><b>0</b> events failed,
+<b data-tooltip='%'>44</b> others
+</small>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="row"><div class="col-md-12">
+<div class="card"><div class="card-header"><p>Timeline</p></div>
+<div class="card-body pt-0"><div>
+<canvas id="timeline" height="120"></canvas>
+</div></div>
+</div>
+</div></div>
+<script>
+var timeline = {
+"Dice Login Test":21.489,"Dice Profile Verification":19.628,"Dice Search Functionality":22.78
+};
+</script>
+<div class="row">
+<div class="col-lg-6 col-md-12 author-container">
+<div class="card">
+<div class="card-header"><p>Author</p></div>
+<div class="card-body pb-0 pt-0"><table class="table table-sm table-bordered">
+<thead><tr class="bg-gray"><th>Name</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Others</th><th>Passed %</th></tr></thead>
+<tbody>
+<tr>
+<td>AutomationFramework</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>100%</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="col-lg-6 col-md-12 category-container">
+<div class="card">
+<div class="card-header"><p>Tags</p></div>
+<div class="card-body pb-0 pt-0"><table class="table table-sm table-bordered">
+<thead><tr class="bg-gray"><th>Name</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Others</th><th>Passed %</th></tr></thead><tbody>
+<tr>
+<td>DiceTests</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>100%</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="col-lg-6 col-md-12 sysenv-container">
+<div class="card">
+<div class="card-header"><p>System/Environment</p></div>
+<div class="card-body pb-0 pt-0"><table class="table table-sm table-bordered">
+<thead><tr class="bg-gray"><th>Name</th><th>Value</th></tr></thead>
+<tbody>
+<tr>
+<td>OS</td>
+<td>Windows 11</td>
+</tr>
+<tr>
+<td>Java Version</td>
+<td>17.0.11</td>
+</tr>
+<tr>
+<td>Browser</td>
+<td>chrome</td>
+</tr>
+<tr>
+<td>Environment</td>
+<td>QA</td>
+</tr>
+<tr>
+<td>Base URL</td>
+<td>https://qa.example.com</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+</div>
+<script>
+var statusGroup = {
+parentCount: 5,
+passParent: 3,
+failParent: 0,
+warningParent: 0,
+skipParent: 0,
+childCount: 5,
+passChild: 0,
+failChild: 0,
+warningChild: 0,
+skipChild: 0,
+infoChild: 0,
+grandChildCount: 5,
+passGrandChild: 0,
+failGrandChild: 0,
+warningGrandChild: 0,
+skipGrandChild: 0,
+infoGrandChild: 0,
+eventsCount: 5,
+passEvents: 37,
+failEvents: 0,
+warningEvents: 0,
+skipEvents: 0,
+infoEvents: 44
+};
+</script>        </div>
+      </div>
+    </div>
+  </div>
+<script src="https://cdn.jsdelivr.net/gh/extent-framework/extent-github-cdn@ce8b10435bcbae260c334c0d0c6b61d2c19b6168/spark/js/spark-script.js"></script>
+<script type="text/javascript"></script></body>
+</html>

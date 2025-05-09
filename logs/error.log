@@ -1,0 +1,259 @@
+2025-05-09 14:28:37.757 [main] ERROR com.umr - Error during test execution
+java.io.FileNotFoundException: .\src\main\resources\excel\TestRunner.xlsx (The system cannot find the file specified)
+	at java.io.FileInputStream.open0(Native Method) ~[?:?]
+	at java.io.FileInputStream.open(FileInputStream.java:216) ~[?:?]
+	at java.io.FileInputStream.<init>(FileInputStream.java:157) ~[?:?]
+	at java.io.FileInputStream.<init>(FileInputStream.java:111) ~[?:?]
+	at com.umr.utils.ExcelReader.readExcelFile(ExcelReader.java:119) ~[classes/:?]
+	at com.umr.utils.ExcelReader.getActiveTestCases(ExcelReader.java:32) ~[classes/:?]
+	at com.umr.core.DiceTestRunner.main(DiceTestRunner.java:18) [classes/:?]
+2025-05-09 14:30:34.235 [main] ERROR com.umr - Sheet not found: TestCases
+2025-05-09 14:34:00.286 [main] ERROR com.umr - Sheet not found: TestData
+2025-05-09 14:34:00.305 [main] ERROR com.umr - Sheet not found: TestFlow
+2025-05-09 14:34:00.306 [main] ERROR com.umr - No keywords found for test ID: TC001
+2025-05-09 14:34:00.326 [main] ERROR com.umr - Sheet not found: TestData
+2025-05-09 14:34:00.344 [main] ERROR com.umr - Sheet not found: TestFlow
+2025-05-09 14:34:00.344 [main] ERROR com.umr - No keywords found for test ID: TC002
+2025-05-09 14:34:00.361 [main] ERROR com.umr - Sheet not found: TestData
+2025-05-09 14:34:00.378 [main] ERROR com.umr - Sheet not found: TestFlow
+2025-05-09 14:34:00.378 [main] ERROR com.umr - No keywords found for test ID: TC003
+2025-05-09 14:36:42.815 [main] ERROR com.umr - Failed to click Continue button
+org.openqa.selenium.TimeoutException: Expected condition failed: waiting for visibility of element located by By.cssSelector: [data-testid='password-input'] input (tried for 10 second(s) with 500 milliseconds interval)
+Build info: version: '4.14.1', revision: '03f8ede370'
+System info: os.name: 'Windows 11', os.arch: 'amd64', os.version: '10.0', java.version: '17.0.11'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: true, browserName: chrome, browserVersion: 136.0.7103.93, chrome: {chromedriverVersion: 136.0.7103.92 (cb81a4cc5087..., userDataDir: C:\Users\ABC\AppData\Local\...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:62187}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:62187/devtoo..., se:cdpVersion: 136.0.7103.93, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: f3b40e3ef4d152c3e17378a27cf6db60
+	at org.openqa.selenium.support.ui.WebDriverWait.timeoutException(WebDriverWait.java:84) ~[selenium-support-4.14.1.jar:?]
+	at org.openqa.selenium.support.ui.FluentWait.until(FluentWait.java:230) ~[selenium-support-4.14.1.jar:?]
+	at com.umr.pages.LoginPage.clickContinue(LoginPage.java:79) [classes/:?]
+	at com.umr.pages.LoginPage.loginToDice(LoginPage.java:122) [classes/:?]
+	at com.umr.core.keyword.DiceKeywords.loginToDice(DiceKeywords.java:90) [classes/:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
+	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
+	at java.lang.reflect.Method.invoke(Method.java:568) ~[?:?]
+	at com.umr.core.KeywordExecutor.executeKeyword(KeywordExecutor.java:70) [classes/:?]
+	at com.umr.core.DiceTestRunner.executeTest(DiceTestRunner.java:75) [classes/:?]
+	at com.umr.core.DiceTestRunner.main(DiceTestRunner.java:32) [classes/:?]
+2025-05-09 14:36:42.822 [main] ERROR com.umr - Failed to log in to Dice
+2025-05-09 14:36:42.822 [main] ERROR com.umr - Test failed: Failed to log in to Dice
+2025-05-09 14:36:42.928 [main] ERROR com.umr - Mandatory keyword failed: LOGIN_TO_DICE
+2025-05-09 14:36:42.929 [main] ERROR com.umr - Test failed: Mandatory keyword failed: LOGIN_TO_DICE
+2025-05-09 14:36:42.929 [main] ERROR com.umr - Test failed during keyword: LOGIN_TO_DICE
+2025-05-09 14:36:43.499 [main] ERROR com.umr - Failed to navigate to Dice login page
+org.openqa.selenium.NoSuchSessionException: Session ID is null. Using WebDriver after calling quit()?
+Build info: version: '4.14.1', revision: '03f8ede370'
+System info: os.name: 'Windows 11', os.arch: 'amd64', os.version: '10.0', java.version: '17.0.11'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Command: [null, get {url=https://www.dice.com/dashboard/login}]
+Capabilities {acceptInsecureCerts: true, browserName: chrome, browserVersion: 136.0.7103.93, chrome: {chromedriverVersion: 136.0.7103.92 (cb81a4cc5087..., userDataDir: C:\Users\ABC\AppData\Local\...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:62187}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:62187/devtoo..., se:cdpVersion: 136.0.7103.93, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:152) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.service.DriverCommandExecutor.invokeExecute(DriverCommandExecutor.java:200) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:175) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:602) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.RemoteWebDriver.get(RemoteWebDriver.java:304) ~[selenium-remote-driver-4.14.1.jar:?]
+	at com.umr.core.keyword.DiceKeywords.navigateToDiceLogin(DiceKeywords.java:54) [classes/:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
+	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
+	at java.lang.reflect.Method.invoke(Method.java:568) ~[?:?]
+	at com.umr.core.KeywordExecutor.executeKeyword(KeywordExecutor.java:70) [classes/:?]
+	at com.umr.core.DiceTestRunner.executeTest(DiceTestRunner.java:75) [classes/:?]
+	at com.umr.core.DiceTestRunner.main(DiceTestRunner.java:32) [classes/:?]
+2025-05-09 14:36:43.499 [main] ERROR com.umr - Test failed: Failed to navigate to Dice login page: Session ID is null. Using WebDriver after calling quit()?
+Build info: version: '4.14.1', revision: '03f8ede370'
+System info: os.name: 'Windows 11', os.arch: 'amd64', os.version: '10.0', java.version: '17.0.11'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Command: [null, get {url=https://www.dice.com/dashboard/login}]
+Capabilities {acceptInsecureCerts: true, browserName: chrome, browserVersion: 136.0.7103.93, chrome: {chromedriverVersion: 136.0.7103.92 (cb81a4cc5087..., userDataDir: C:\Users\ABC\AppData\Local\...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:62187}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:62187/devtoo..., se:cdpVersion: 136.0.7103.93, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+2025-05-09 14:36:43.500 [main] ERROR com.umr - Mandatory keyword failed: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 14:36:43.500 [main] ERROR com.umr - Test failed: Mandatory keyword failed: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 14:36:43.500 [main] ERROR com.umr - Test failed during keyword: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 14:36:43.502 [main] ERROR com.umr - Failed to take screenshot: FAILURE_TC002_Dice Profile Verification
+org.openqa.selenium.NoSuchSessionException: Session ID is null. Using WebDriver after calling quit()?
+Build info: version: '4.14.1', revision: '03f8ede370'
+System info: os.name: 'Windows 11', os.arch: 'amd64', os.version: '10.0', java.version: '17.0.11'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Command: [null, screenshot {}]
+Capabilities {acceptInsecureCerts: true, browserName: chrome, browserVersion: 136.0.7103.93, chrome: {chromedriverVersion: 136.0.7103.92 (cb81a4cc5087..., userDataDir: C:\Users\ABC\AppData\Local\...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:62187}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:62187/devtoo..., se:cdpVersion: 136.0.7103.93, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:152) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.service.DriverCommandExecutor.invokeExecute(DriverCommandExecutor.java:200) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:175) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:602) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:675) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:679) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.RemoteWebDriver.getScreenshotAs(RemoteWebDriver.java:325) ~[selenium-remote-driver-4.14.1.jar:?]
+	at com.umr.utils.ScreenshotUtils.takeScreenshot(ScreenshotUtils.java:92) [classes/:?]
+	at com.umr.utils.ScreenshotUtils.takeFailureScreenshot(ScreenshotUtils.java:153) [classes/:?]
+	at com.umr.core.DiceTestRunner.executeTest(DiceTestRunner.java:79) [classes/:?]
+	at com.umr.core.DiceTestRunner.main(DiceTestRunner.java:32) [classes/:?]
+2025-05-09 14:36:43.581 [main] ERROR com.umr - Failed to navigate to Dice login page
+org.openqa.selenium.NoSuchSessionException: Session ID is null. Using WebDriver after calling quit()?
+Build info: version: '4.14.1', revision: '03f8ede370'
+System info: os.name: 'Windows 11', os.arch: 'amd64', os.version: '10.0', java.version: '17.0.11'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Command: [null, get {url=https://www.dice.com/dashboard/login}]
+Capabilities {acceptInsecureCerts: true, browserName: chrome, browserVersion: 136.0.7103.93, chrome: {chromedriverVersion: 136.0.7103.92 (cb81a4cc5087..., userDataDir: C:\Users\ABC\AppData\Local\...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:62187}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:62187/devtoo..., se:cdpVersion: 136.0.7103.93, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:152) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.service.DriverCommandExecutor.invokeExecute(DriverCommandExecutor.java:200) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:175) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:602) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.RemoteWebDriver.get(RemoteWebDriver.java:304) ~[selenium-remote-driver-4.14.1.jar:?]
+	at com.umr.core.keyword.DiceKeywords.navigateToDiceLogin(DiceKeywords.java:54) [classes/:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
+	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
+	at java.lang.reflect.Method.invoke(Method.java:568) ~[?:?]
+	at com.umr.core.KeywordExecutor.executeKeyword(KeywordExecutor.java:70) [classes/:?]
+	at com.umr.core.DiceTestRunner.executeTest(DiceTestRunner.java:75) [classes/:?]
+	at com.umr.core.DiceTestRunner.main(DiceTestRunner.java:32) [classes/:?]
+2025-05-09 14:36:43.584 [main] ERROR com.umr - Test failed: Failed to navigate to Dice login page: Session ID is null. Using WebDriver after calling quit()?
+Build info: version: '4.14.1', revision: '03f8ede370'
+System info: os.name: 'Windows 11', os.arch: 'amd64', os.version: '10.0', java.version: '17.0.11'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Command: [null, get {url=https://www.dice.com/dashboard/login}]
+Capabilities {acceptInsecureCerts: true, browserName: chrome, browserVersion: 136.0.7103.93, chrome: {chromedriverVersion: 136.0.7103.92 (cb81a4cc5087..., userDataDir: C:\Users\ABC\AppData\Local\...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:62187}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:62187/devtoo..., se:cdpVersion: 136.0.7103.93, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+2025-05-09 14:36:43.584 [main] ERROR com.umr - Mandatory keyword failed: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 14:36:43.584 [main] ERROR com.umr - Test failed: Mandatory keyword failed: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 14:36:43.585 [main] ERROR com.umr - Test failed during keyword: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 14:36:43.586 [main] ERROR com.umr - Failed to take screenshot: FAILURE_TC003_Dice Search Functionality
+org.openqa.selenium.NoSuchSessionException: Session ID is null. Using WebDriver after calling quit()?
+Build info: version: '4.14.1', revision: '03f8ede370'
+System info: os.name: 'Windows 11', os.arch: 'amd64', os.version: '10.0', java.version: '17.0.11'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Command: [null, screenshot {}]
+Capabilities {acceptInsecureCerts: true, browserName: chrome, browserVersion: 136.0.7103.93, chrome: {chromedriverVersion: 136.0.7103.92 (cb81a4cc5087..., userDataDir: C:\Users\ABC\AppData\Local\...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:62187}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:62187/devtoo..., se:cdpVersion: 136.0.7103.93, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+	at org.openqa.selenium.remote.HttpCommandExecutor.execute(HttpCommandExecutor.java:152) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.service.DriverCommandExecutor.invokeExecute(DriverCommandExecutor.java:200) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.service.DriverCommandExecutor.execute(DriverCommandExecutor.java:175) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:602) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:675) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.RemoteWebDriver.execute(RemoteWebDriver.java:679) ~[selenium-remote-driver-4.14.1.jar:?]
+	at org.openqa.selenium.remote.RemoteWebDriver.getScreenshotAs(RemoteWebDriver.java:325) ~[selenium-remote-driver-4.14.1.jar:?]
+	at com.umr.utils.ScreenshotUtils.takeScreenshot(ScreenshotUtils.java:92) [classes/:?]
+	at com.umr.utils.ScreenshotUtils.takeFailureScreenshot(ScreenshotUtils.java:153) [classes/:?]
+	at com.umr.core.DiceTestRunner.executeTest(DiceTestRunner.java:79) [classes/:?]
+	at com.umr.core.DiceTestRunner.main(DiceTestRunner.java:32) [classes/:?]
+2025-05-09 14:54:00.894 [main] ERROR com.umr - Dice login page failed to load
+2025-05-09 14:54:00.895 [main] ERROR com.umr - Test failed: Dice login page failed to load
+2025-05-09 14:54:00.895 [main] ERROR com.umr - Mandatory keyword failed: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 14:54:00.895 [main] ERROR com.umr - Test failed: Mandatory keyword failed: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 14:54:00.895 [main] ERROR com.umr - Test failed during keyword: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 14:54:23.142 [main] ERROR com.umr - Dice login page failed to load
+2025-05-09 14:54:23.142 [main] ERROR com.umr - Test failed: Dice login page failed to load
+2025-05-09 14:54:23.143 [main] ERROR com.umr - Mandatory keyword failed: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 14:54:23.143 [main] ERROR com.umr - Test failed: Mandatory keyword failed: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 14:54:23.143 [main] ERROR com.umr - Test failed during keyword: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 14:54:45.465 [main] ERROR com.umr - Dice login page failed to load
+2025-05-09 14:54:45.465 [main] ERROR com.umr - Test failed: Dice login page failed to load
+2025-05-09 14:54:45.465 [main] ERROR com.umr - Mandatory keyword failed: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 14:54:45.465 [main] ERROR com.umr - Test failed: Mandatory keyword failed: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 14:54:45.465 [main] ERROR com.umr - Test failed during keyword: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 15:06:23.125 [main] ERROR com.umr - Dice login page failed to load
+2025-05-09 15:06:23.125 [main] ERROR com.umr - Test failed: Dice login page failed to load
+2025-05-09 15:06:23.125 [main] ERROR com.umr - Mandatory keyword failed: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 15:06:23.125 [main] ERROR com.umr - Test failed: Mandatory keyword failed: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 15:06:23.126 [main] ERROR com.umr - Test failed during keyword: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 15:06:45.456 [main] ERROR com.umr - Dice login page failed to load
+2025-05-09 15:06:45.456 [main] ERROR com.umr - Test failed: Dice login page failed to load
+2025-05-09 15:06:45.456 [main] ERROR com.umr - Mandatory keyword failed: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 15:06:45.456 [main] ERROR com.umr - Test failed: Mandatory keyword failed: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 15:06:45.456 [main] ERROR com.umr - Test failed during keyword: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 15:07:07.558 [main] ERROR com.umr - Dice login page failed to load
+2025-05-09 15:07:07.558 [main] ERROR com.umr - Test failed: Dice login page failed to load
+2025-05-09 15:07:07.558 [main] ERROR com.umr - Mandatory keyword failed: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 15:07:07.558 [main] ERROR com.umr - Test failed: Mandatory keyword failed: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 15:07:07.558 [main] ERROR com.umr - Test failed during keyword: NAVIGATE_TO_DICE_LOGIN
+2025-05-09 15:25:40.346 [main] ERROR com.umr - Error checking if home page is loaded
+org.openqa.selenium.TimeoutException: Expected condition failed: waiting for visibility of element located by By.cssSelector: h3[aria-label='Greeting'] (tried for 20 second(s) with 500 milliseconds interval)
+Build info: version: '4.14.1', revision: '03f8ede370'
+System info: os.name: 'Windows 11', os.arch: 'amd64', os.version: '10.0', java.version: '17.0.11'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: true, browserName: chrome, browserVersion: 136.0.7103.93, chrome: {chromedriverVersion: 136.0.7103.92 (cb81a4cc5087..., userDataDir: C:\Users\ABC\AppData\Local\...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:63998}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:63998/devtoo..., se:cdpVersion: 136.0.7103.93, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: d5c5a2f14107ec779f35d7bfe1b401f3
+	at org.openqa.selenium.support.ui.WebDriverWait.timeoutException(WebDriverWait.java:84) ~[selenium-support-4.14.1.jar:?]
+	at org.openqa.selenium.support.ui.FluentWait.until(FluentWait.java:230) ~[selenium-support-4.14.1.jar:?]
+	at com.umr.pages.HomePage.isPageLoaded(HomePage.java:32) [classes/:?]
+	at com.umr.core.keyword.DiceKeywords.loginToDice(DiceKeywords.java:134) [classes/:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
+	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
+	at java.lang.reflect.Method.invoke(Method.java:568) ~[?:?]
+	at com.umr.core.KeywordExecutor.executeKeyword(KeywordExecutor.java:70) [classes/:?]
+	at com.umr.core.DiceTestRunner.executeTest(DiceTestRunner.java:78) [classes/:?]
+	at com.umr.core.DiceTestRunner.main(DiceTestRunner.java:32) [classes/:?]
+2025-05-09 15:25:40.352 [main] ERROR com.umr - Home page failed to load after login
+2025-05-09 15:25:40.352 [main] ERROR com.umr - Test failed: Home page failed to load after login
+2025-05-09 15:25:40.352 [main] ERROR com.umr - Mandatory keyword failed: LOGIN_TO_DICE
+2025-05-09 15:25:40.352 [main] ERROR com.umr - Test failed: Mandatory keyword failed: LOGIN_TO_DICE
+2025-05-09 15:25:40.352 [main] ERROR com.umr - Test failed during keyword: LOGIN_TO_DICE
+2025-05-09 15:26:09.042 [main] ERROR com.umr - Error checking if home page is loaded
+org.openqa.selenium.TimeoutException: Expected condition failed: waiting for visibility of element located by By.cssSelector: h3[aria-label='Greeting'] (tried for 20 second(s) with 500 milliseconds interval)
+Build info: version: '4.14.1', revision: '03f8ede370'
+System info: os.name: 'Windows 11', os.arch: 'amd64', os.version: '10.0', java.version: '17.0.11'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: true, browserName: chrome, browserVersion: 136.0.7103.93, chrome: {chromedriverVersion: 136.0.7103.92 (cb81a4cc5087..., userDataDir: C:\Users\ABC\AppData\Local\...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:64094}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:64094/devtoo..., se:cdpVersion: 136.0.7103.93, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: a7325702b9f739552ac3c321d4944052
+	at org.openqa.selenium.support.ui.WebDriverWait.timeoutException(WebDriverWait.java:84) ~[selenium-support-4.14.1.jar:?]
+	at org.openqa.selenium.support.ui.FluentWait.until(FluentWait.java:230) ~[selenium-support-4.14.1.jar:?]
+	at com.umr.pages.HomePage.isPageLoaded(HomePage.java:32) [classes/:?]
+	at com.umr.core.keyword.DiceKeywords.loginToDice(DiceKeywords.java:134) [classes/:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
+	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
+	at java.lang.reflect.Method.invoke(Method.java:568) ~[?:?]
+	at com.umr.core.KeywordExecutor.executeKeyword(KeywordExecutor.java:70) [classes/:?]
+	at com.umr.core.DiceTestRunner.executeTest(DiceTestRunner.java:78) [classes/:?]
+	at com.umr.core.DiceTestRunner.main(DiceTestRunner.java:32) [classes/:?]
+2025-05-09 15:26:09.045 [main] ERROR com.umr - Home page failed to load after login
+2025-05-09 15:26:09.046 [main] ERROR com.umr - Test failed: Home page failed to load after login
+2025-05-09 15:26:09.046 [main] ERROR com.umr - Mandatory keyword failed: LOGIN_TO_DICE
+2025-05-09 15:26:09.046 [main] ERROR com.umr - Test failed: Mandatory keyword failed: LOGIN_TO_DICE
+2025-05-09 15:26:09.047 [main] ERROR com.umr - Test failed during keyword: LOGIN_TO_DICE
+2025-05-09 15:34:52.198 [main] ERROR com.umr - Error checking if home page is loaded
+org.openqa.selenium.TimeoutException: Expected condition failed: waiting for visibility of element located by By.cssSelector: h3[aria-label='Greeting'] (tried for 20 second(s) with 500 milliseconds interval)
+Build info: version: '4.14.1', revision: '03f8ede370'
+System info: os.name: 'Windows 11', os.arch: 'amd64', os.version: '10.0', java.version: '17.0.11'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: true, browserName: chrome, browserVersion: 136.0.7103.93, chrome: {chromedriverVersion: 136.0.7103.92 (cb81a4cc5087..., userDataDir: C:\Users\ABC\AppData\Local\...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:64337}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:64337/devtoo..., se:cdpVersion: 136.0.7103.93, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 43eac618899dec222ebc2b8e30c264f8
+	at org.openqa.selenium.support.ui.WebDriverWait.timeoutException(WebDriverWait.java:84) ~[selenium-support-4.14.1.jar:?]
+	at org.openqa.selenium.support.ui.FluentWait.until(FluentWait.java:230) ~[selenium-support-4.14.1.jar:?]
+	at com.umr.pages.HomePage.isPageLoaded(HomePage.java:32) [classes/:?]
+	at com.umr.core.keyword.DiceKeywords.loginToDice(DiceKeywords.java:134) [classes/:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
+	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
+	at java.lang.reflect.Method.invoke(Method.java:568) ~[?:?]
+	at com.umr.core.KeywordExecutor.executeKeyword(KeywordExecutor.java:70) [classes/:?]
+	at com.umr.core.DiceTestRunner.executeTest(DiceTestRunner.java:78) [classes/:?]
+	at com.umr.core.DiceTestRunner.main(DiceTestRunner.java:32) [classes/:?]
+2025-05-09 15:34:52.207 [main] ERROR com.umr - Home page failed to load after login
+2025-05-09 15:34:52.208 [main] ERROR com.umr - Test failed: Home page failed to load after login
+2025-05-09 15:34:52.208 [main] ERROR com.umr - Mandatory keyword failed: LOGIN_TO_DICE
+2025-05-09 15:34:52.208 [main] ERROR com.umr - Test failed: Mandatory keyword failed: LOGIN_TO_DICE
+2025-05-09 15:34:52.208 [main] ERROR com.umr - Test failed during keyword: LOGIN_TO_DICE
+2025-05-09 15:35:20.850 [main] ERROR com.umr - Error checking if home page is loaded
+org.openqa.selenium.TimeoutException: Expected condition failed: waiting for visibility of element located by By.cssSelector: h3[aria-label='Greeting'] (tried for 20 second(s) with 500 milliseconds interval)
+Build info: version: '4.14.1', revision: '03f8ede370'
+System info: os.name: 'Windows 11', os.arch: 'amd64', os.version: '10.0', java.version: '17.0.11'
+Driver info: org.openqa.selenium.chrome.ChromeDriver
+Capabilities {acceptInsecureCerts: true, browserName: chrome, browserVersion: 136.0.7103.93, chrome: {chromedriverVersion: 136.0.7103.92 (cb81a4cc5087..., userDataDir: C:\Users\ABC\AppData\Local\...}, fedcm:accounts: true, goog:chromeOptions: {debuggerAddress: localhost:64432}, networkConnectionEnabled: false, pageLoadStrategy: normal, platformName: windows, proxy: Proxy(), se:cdp: ws://localhost:64432/devtoo..., se:cdpVersion: 136.0.7103.93, setWindowRect: true, strictFileInteractability: false, timeouts: {implicit: 0, pageLoad: 300000, script: 30000}, unhandledPromptBehavior: dismiss and notify, webauthn:extension:credBlob: true, webauthn:extension:largeBlob: true, webauthn:extension:minPinLength: true, webauthn:extension:prf: true, webauthn:virtualAuthenticators: true}
+Session ID: 6ef4b418e92f42fab926cc1a75ede826
+	at org.openqa.selenium.support.ui.WebDriverWait.timeoutException(WebDriverWait.java:84) ~[selenium-support-4.14.1.jar:?]
+	at org.openqa.selenium.support.ui.FluentWait.until(FluentWait.java:230) ~[selenium-support-4.14.1.jar:?]
+	at com.umr.pages.HomePage.isPageLoaded(HomePage.java:32) [classes/:?]
+	at com.umr.core.keyword.DiceKeywords.loginToDice(DiceKeywords.java:134) [classes/:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
+	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
+	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
+	at java.lang.reflect.Method.invoke(Method.java:568) ~[?:?]
+	at com.umr.core.KeywordExecutor.executeKeyword(KeywordExecutor.java:70) [classes/:?]
+	at com.umr.core.DiceTestRunner.executeTest(DiceTestRunner.java:78) [classes/:?]
+	at com.umr.core.DiceTestRunner.main(DiceTestRunner.java:32) [classes/:?]
+2025-05-09 15:35:20.851 [main] ERROR com.umr - Home page failed to load after login
+2025-05-09 15:35:20.851 [main] ERROR com.umr - Test failed: Home page failed to load after login
+2025-05-09 15:35:20.851 [main] ERROR com.umr - Mandatory keyword failed: LOGIN_TO_DICE
+2025-05-09 15:35:20.851 [main] ERROR com.umr - Test failed: Mandatory keyword failed: LOGIN_TO_DICE
+2025-05-09 15:35:20.851 [main] ERROR com.umr - Test failed during keyword: LOGIN_TO_DICE
