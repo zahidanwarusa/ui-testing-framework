@@ -324,24 +324,7 @@ public class CBPKeywords {
 
             Thread.sleep(2000);
 
-            // 9. Add and fill Passport if needed
-            LogUtil.info("Checking and adding Passport information");
-            if (shouldAddPassport(js)) {
-                LogUtil.info("Adding Passport field");
-                if (clickAddButtonSafe(js, "Add Passport")) {
-                    Thread.sleep(4000);
-                    Boolean passportResult = fillPassportInfo(js);
-                    LogUtil.info("Passport filling result: " + passportResult);
-                }
-            } else {
-                LogUtil.info("Passport section exists, filling missing data");
-                Boolean passportResult = fillExistingPassportInfo(js);
-                LogUtil.info("Existing passport filling result: " + passportResult);
-            }
-
-            Thread.sleep(2000);
-
-            // 10. Add and fill Driver's License
+            // 9. Add and fill Driver's License
             LogUtil.info("Adding Driver's License field");
             if (clickAddButtonSafe(js, "Add Driver's License")) {
                 Thread.sleep(4000);
@@ -351,7 +334,7 @@ public class CBPKeywords {
 
             Thread.sleep(3000);
 
-            // 11. Take final screenshot
+            // 10. Take final screenshot
             String finalScreenshotPath = ScreenshotUtils.takeScreenshot("1Day_Lookout_Form_Filled");
             if (finalScreenshotPath != null) {
                 ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
@@ -412,26 +395,17 @@ public class CBPKeywords {
                             "}" +
                             "if (!foundCitizenship) analysis.push('Citizenship: Not found');" +
 
-                            // Check Passport
-                            "var passportSection = null;" +
-                            "var passportHeadings = document.querySelectorAll('.panel-heading, h3, h4, span');" +
-                            "for (var p = 0; p < passportHeadings.length; p++) {" +
-                            "  if (passportHeadings[p].textContent && passportHeadings[p].textContent.includes('Passport')) {" +
-                            "    passportSection = passportHeadings[p].closest('.panel, div');" +
+                            // Check Passport info
+                            "var passportElements = document.querySelectorAll('*');" +
+                            "var foundPassport = false;" +
+                            "for (var p = 0; p < passportElements.length; p++) {" +
+                            "  if (passportElements[p].textContent && passportElements[p].textContent.includes('Regular')) {" +
+                            "    analysis.push('Passport: Existing passport found (Regular type)');" +
+                            "    foundPassport = true;" +
                             "    break;" +
                             "  }" +
                             "}" +
-                            "if (passportSection) {" +
-                            "  var passportInputs = passportSection.querySelectorAll('input[type=\"text\"]');" +
-                            "  var passportSelects = passportSection.querySelectorAll('select, mat-select');" +
-                            "  if (passportInputs.length > 0 || passportSelects.length > 0) {" +
-                            "    analysis.push('Passport: Section exists - will check/fill missing data');" +
-                            "  } else {" +
-                            "    analysis.push('Passport: Section empty - will add new passport');" +
-                            "  }" +
-                            "} else {" +
-                            "  analysis.push('Passport: Section not found - will add new passport');" +
-                            "}" +
+                            "if (!foundPassport) analysis.push('Passport: No existing passport found');" +
 
                             // Check Remarks
                             "var textarea = document.querySelector('textarea[maxlength=\"3000\"]');" +
@@ -686,6 +660,169 @@ public class CBPKeywords {
         }
     }
 
+    private boolean fillPassportInfo(JavascriptExecutor js) {
+        try {
+            LogUtil.info("Filling Passport information");
+            Thread.sleep(2000);
+
+            // Step 1: Select Passport Type
+            LogUtil.info("  - Selecting passport type");
+            Boolean typeResult = selectPassportField(js, "Passport Type", "R - Regular");
+            Thread.sleep(2000);
+
+            // Step 2: Fill Passport Number
+            LogUtil.info("  - Filling passport number");
+            String passportNumber = generatePassportNumber();
+            Boolean numberResult = fillPassportField(js, "Passport #", passportNumber);
+            Thread.sleep(2000);
+
+            // Step 3: Select Passport Country
+            LogUtil.info("  - Selecting passport country");
+            Boolean countryResult = selectPassportField(js, "Passport Country", "USA - UNITED STATES");
+            Thread.sleep(2000);
+
+            // Step 4: Fill Issue Date
+            LogUtil.info("  - Filling passport issue date");
+            String issueDate = generatePastDate(365, 3650); // 1-10 years ago
+            Boolean issueDateResult = fillPassportField(js, "Passport Issue Date", issueDate);
+            Thread.sleep(2000);
+
+            // Step 5: Fill Expiry Date
+            LogUtil.info("  - Filling passport expiry date");
+            String expiryDate = generateFutureDate(365, 3650); // 1-10 years from now
+            Boolean expiryDateResult = fillPassportField(js, "Passport Expiration Date", expiryDate);
+
+            LogUtil.info("Passport filling results - Type: " + typeResult + ", Number: " + numberResult +
+                    ", Country: " + countryResult + ", Issue: " + issueDateResult + ", Expiry: " + expiryDateResult);
+
+            return numberResult != null && numberResult; // At minimum, passport number should be filled
+
+        } catch (Exception e) {
+            LogUtil.error("Error filling passport information", e);
+            return false;
+        }
+    }
+
+    private Boolean selectPassportField(JavascriptExecutor js, String fieldLabel, String optionText) {
+        try {
+            return (Boolean) js.executeScript(
+                    "return new Promise((resolve) => {" +
+                            "  setTimeout(() => {" +
+                            "    var labels = document.querySelectorAll('label, mat-label, span');" +
+                            "    var targetDropdown = null;" +
+                            "    for (var i = labels.length - 1; i >= 0; i--) {" +
+                            "      if (labels[i].textContent && labels[i].textContent.includes(arguments[0])) {" +
+                            "        var container = labels[i].closest('div, mat-form-field, .tecs-flex-container');" +
+                            "        if (container) {" +
+                            "          var dropdown = container.querySelector('mat-select:not([aria-disabled=\"true\"]), select:not([disabled])');" +
+                            "          if (dropdown) {" +
+                            "            var rect = dropdown.getBoundingClientRect();" +
+                            "            if (rect.width > 0 && rect.height > 0) {" +
+                            "              targetDropdown = dropdown;" +
+                            "              break;" +
+                            "            }" +
+                            "          }" +
+                            "        }" +
+                            "      }" +
+                            "    }" +
+                            "    if (!targetDropdown) {" +
+                            "      var allDropdowns = document.querySelectorAll('mat-select:not([aria-disabled=\"true\"]), select:not([disabled])');" +
+                            "      for (var j = allDropdowns.length - 1; j >= 0; j--) {" +
+                            "        var rect = allDropdowns[j].getBoundingClientRect();" +
+                            "        if (rect.width > 0 && rect.height > 0) {" +
+                            "          targetDropdown = allDropdowns[j];" +
+                            "          break;" +
+                            "        }" +
+                            "      }" +
+                            "    }" +
+                            "    if (!targetDropdown) { resolve(false); return; }" +
+                            "    var trigger = targetDropdown.querySelector('.mat-select-trigger');" +
+                            "    if (trigger) { trigger.click(); } else { targetDropdown.click(); }" +
+                            "    setTimeout(() => {" +
+                            "      var options = document.querySelectorAll('mat-option:not(.mat-option-disabled), option:not([disabled])');" +
+                            "      for (var k = 0; k < options.length; k++) {" +
+                            "        if (options[k].offsetParent !== null && options[k].textContent.includes(arguments[1])) {" +
+                            "          options[k].click();" +
+                            "          setTimeout(() => { document.body.click(); resolve(true); }, 500);" +
+                            "          return;" +
+                            "        }" +
+                            "      }" +
+                            "      if (options.length > 0) {" +
+                            "        options[0].click();" +
+                            "        setTimeout(() => { document.body.click(); resolve(true); }, 500);" +
+                            "      } else { resolve(false); }" +
+                            "    }, 3000);" +
+                            "  }, 1000);" +
+                            "});", fieldLabel, optionText
+            );
+        } catch (Exception e) {
+            LogUtil.error("Error selecting passport field: " + fieldLabel, e);
+            return false;
+        }
+    }
+
+    private Boolean fillPassportField(JavascriptExecutor js, String fieldLabel, String value) {
+        try {
+            return (Boolean) js.executeScript(
+                    "var labels = document.querySelectorAll('label, mat-label, span');" +
+                            "for (var i = labels.length - 1; i >= 0; i--) {" +
+                            "  if (labels[i].textContent && labels[i].textContent.includes(arguments[0])) {" +
+                            "    var container = labels[i].closest('div, mat-form-field, .tecs-flex-container');" +
+                            "    if (container) {" +
+                            "      var input = container.querySelector('input:not([readonly]):not([disabled])');" +
+                            "      if (input) {" +
+                            "        var rect = input.getBoundingClientRect();" +
+                            "        if (rect.width > 0 && rect.height > 0) {" +
+                            "          input.focus();" +
+                            "          input.value = arguments[1];" +
+                            "          input.dispatchEvent(new Event('input', {bubbles: true}));" +
+                            "          input.dispatchEvent(new Event('change', {bubbles: true}));" +
+                            "          input.blur();" +
+                            "          return true;" +
+                            "        }" +
+                            "      }" +
+                            "    }" +
+                            "  }" +
+                            "}" +
+                            "var allInputs = document.querySelectorAll('input:not([readonly]):not([disabled])');" +
+                            "for (var j = allInputs.length - 1; j >= 0; j--) {" +
+                            "  var input = allInputs[j];" +
+                            "  var rect = input.getBoundingClientRect();" +
+                            "  if (rect.width > 0 && rect.height > 0 && input.value === '') {" +
+                            "    var inputType = input.getAttribute('mask') || input.getAttribute('maxlength') || input.type;" +
+                            "    if ((arguments[0].includes('Date') && inputType === '00/00/0000') || " +
+                            "        (arguments[0].includes('#') && inputType === '20') || " +
+                            "        (!arguments[0].includes('Date') && inputType !== '00/00/0000')) {" +
+                            "      input.focus();" +
+                            "      input.value = arguments[1];" +
+                            "      input.dispatchEvent(new Event('input', {bubbles: true}));" +
+                            "      input.dispatchEvent(new Event('change', {bubbles: true}));" +
+                            "      input.blur();" +
+                            "      return true;" +
+                            "    }" +
+                            "  }" +
+                            "}" +
+                            "return false;", fieldLabel, value
+            );
+        } catch (Exception e) {
+            LogUtil.error("Error filling passport field: " + fieldLabel, e);
+            return false;
+        }
+    }
+
+    private String generatePassportNumber() {
+        Random random = new Random();
+        // Generate realistic US passport number format
+        return String.valueOf(100000000 + random.nextInt(900000000));
+    }
+
+    private String generatePastDate(int minDaysAgo, int maxDaysAgo) {
+        Random random = new Random();
+        LocalDate date = LocalDate.now()
+                .minusDays(minDaysAgo + random.nextInt(maxDaysAgo - minDaysAgo));
+        return date.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+    }
+
     private boolean fillDriversLicense(JavascriptExecutor js) {
         try {
             LogUtil.info("Filling Driver's License information");
@@ -745,197 +882,6 @@ public class CBPKeywords {
             LogUtil.error("Error filling driver's license", e);
             return false;
         }
-    }
-
-    private boolean shouldAddPassport(JavascriptExecutor js) {
-        try {
-            Boolean shouldAdd = (Boolean) js.executeScript(
-                    "var passportSection = null;" +
-                            "var headings = document.querySelectorAll('.panel-heading, h3, h4, span, label');" +
-                            "for (var i = 0; i < headings.length; i++) {" +
-                            "  if (headings[i].textContent && headings[i].textContent.includes('Passport')) {" +
-                            "    passportSection = headings[i].closest('.panel, div');" +
-                            "    break;" +
-                            "  }" +
-                            "}" +
-                            "if (passportSection) {" +
-                            "  var inputs = passportSection.querySelectorAll('input[type=\"text\"]');" +
-                            "  var selects = passportSection.querySelectorAll('select, mat-select');" +
-                            "  if (inputs.length === 0 && selects.length === 0) {" +
-                            "    return true;" +
-                            "  }" +
-                            "  return false;" +
-                            "}" +
-                            "return true;"
-            );
-            return shouldAdd != null && shouldAdd;
-        } catch (Exception e) {
-            LogUtil.error("Error checking passport section", e);
-            return true; // If error, assume we should add
-        }
-    }
-
-    private boolean fillPassportInfo(JavascriptExecutor js) {
-        try {
-            LogUtil.info("Filling new passport information");
-            Thread.sleep(2000);
-
-            // Step 1: Select passport type
-            LogUtil.info("Selecting passport type");
-            Boolean typeResult = selectFromNewlyAddedDropdown(js, "Type", "R - Regular");
-            Thread.sleep(2000);
-
-            // Step 2: Fill passport number
-            LogUtil.info("Filling passport number");
-            String passportNumber = "PP" + (100000000 + new Random().nextInt(900000000));
-            Boolean numberResult = (Boolean) js.executeScript(
-                    "var inputs = document.querySelectorAll('input[maxlength=\"20\"]');" +
-                            "for (var i = inputs.length - 1; i >= 0; i--) {" +
-                            "  var input = inputs[i];" +
-                            "  var rect = input.getBoundingClientRect();" +
-                            "  if (rect.width > 0 && rect.height > 0 && input.value === '') {" +
-                            "    input.focus();" +
-                            "    input.value = arguments[0];" +
-                            "    input.dispatchEvent(new Event('input', {bubbles: true}));" +
-                            "    input.dispatchEvent(new Event('change', {bubbles: true}));" +
-                            "    input.blur();" +
-                            "    return true;" +
-                            "  }" +
-                            "}" +
-                            "return false;", passportNumber
-            );
-            Thread.sleep(2000);
-
-            // Step 3: Select passport country
-            LogUtil.info("Selecting passport country");
-            Boolean countryResult = selectFromNewlyAddedDropdown(js, "Country", "USA - UNITED STATES");
-            Thread.sleep(2000);
-
-            // Step 4: Fill issue date
-            LogUtil.info("Filling passport issue date");
-            String issueDate = generatePastDate(365, 3650); // 1-10 years ago
-            Boolean issueDateResult = fillNewestDateInput(js, issueDate);
-            Thread.sleep(2000);
-
-            // Step 5: Fill expiry date
-            LogUtil.info("Filling passport expiry date");
-            String expiryDate = generateFutureDate(365, 3650); // 1-10 years from now
-            Boolean expiryDateResult = fillNewestDateInput(js, expiryDate);
-
-            LogUtil.info("Passport filling - Type: " + typeResult + ", Number: " + numberResult +
-                    ", Country: " + countryResult + ", Issue: " + issueDateResult + ", Expiry: " + expiryDateResult);
-
-            return numberResult != null && numberResult;
-
-        } catch (Exception e) {
-            LogUtil.error("Error filling passport info", e);
-            return false;
-        }
-    }
-
-    private boolean fillExistingPassportInfo(JavascriptExecutor js) {
-        try {
-            LogUtil.info("Filling missing data in existing passport section");
-            Thread.sleep(2000);
-
-            // Check and fill passport number if empty
-            Boolean numberResult = (Boolean) js.executeScript(
-                    "var passportSection = null;" +
-                            "var headings = document.querySelectorAll('.panel-heading, h3, h4, span');" +
-                            "for (var i = 0; i < headings.length; i++) {" +
-                            "  if (headings[i].textContent && headings[i].textContent.includes('Passport')) {" +
-                            "    passportSection = headings[i].closest('.panel, div');" +
-                            "    break;" +
-                            "  }" +
-                            "}" +
-                            "if (passportSection) {" +
-                            "  var numberInputs = passportSection.querySelectorAll('input[maxlength=\"20\"]');" +
-                            "  for (var j = 0; j < numberInputs.length; j++) {" +
-                            "    if (numberInputs[j].value === '') {" +
-                            "      numberInputs[j].focus();" +
-                            "      numberInputs[j].value = 'PP' + Math.floor(Math.random() * 1000000000);" +
-                            "      numberInputs[j].dispatchEvent(new Event('input', {bubbles: true}));" +
-                            "      numberInputs[j].dispatchEvent(new Event('change', {bubbles: true}));" +
-                            "      numberInputs[j].blur();" +
-                            "      return true;" +
-                            "    }" +
-                            "  }" +
-                            "}" +
-                            "return false;"
-            );
-
-            Thread.sleep(2000);
-
-            // Check and fill passport dates if empty
-            Boolean datesResult = (Boolean) js.executeScript(
-                    "var passportSection = null;" +
-                            "var headings = document.querySelectorAll('.panel-heading, h3, h4, span');" +
-                            "for (var i = 0; i < headings.length; i++) {" +
-                            "  if (headings[i].textContent && headings[i].textContent.includes('Passport')) {" +
-                            "    passportSection = headings[i].closest('.panel, div');" +
-                            "    break;" +
-                            "  }" +
-                            "}" +
-                            "if (passportSection) {" +
-                            "  var dateInputs = passportSection.querySelectorAll('input[mask=\"00/00/0000\"]');" +
-                            "  var filled = false;" +
-                            "  for (var k = 0; k < dateInputs.length; k++) {" +
-                            "    if (dateInputs[k].value === '') {" +
-                            "      var isIssueDate = k === 0 || (dateInputs[k].previousElementSibling && dateInputs[k].previousElementSibling.textContent.includes('Issue'));" +
-                            "      var dateValue = isIssueDate ? arguments[0] : arguments[1];" +
-                            "      dateInputs[k].focus();" +
-                            "      dateInputs[k].value = dateValue;" +
-                            "      dateInputs[k].dispatchEvent(new Event('input', {bubbles: true}));" +
-                            "      dateInputs[k].dispatchEvent(new Event('change', {bubbles: true}));" +
-                            "      dateInputs[k].blur();" +
-                            "      filled = true;" +
-                            "    }" +
-                            "  }" +
-                            "  return filled;" +
-                            "}" +
-                            "return false;",
-                    generatePastDate(365, 3650),
-                    generateFutureDate(365, 3650)
-            );
-
-            LogUtil.info("Existing passport filling - Number: " + numberResult + ", Dates: " + datesResult);
-            return numberResult != null && numberResult;
-
-        } catch (Exception e) {
-            LogUtil.error("Error filling existing passport info", e);
-            return false;
-        }
-    }
-
-    private boolean fillNewestDateInput(JavascriptExecutor js, String date) {
-        try {
-            return (Boolean) js.executeScript(
-                    "var dateInputs = document.querySelectorAll('input[mask=\"00/00/0000\"]');" +
-                            "for (var i = dateInputs.length - 1; i >= 0; i--) {" +
-                            "  var input = dateInputs[i];" +
-                            "  var rect = input.getBoundingClientRect();" +
-                            "  if (rect.width > 0 && rect.height > 0 && input.value === '') {" +
-                            "    input.focus();" +
-                            "    input.value = arguments[0];" +
-                            "    input.dispatchEvent(new Event('input', {bubbles: true}));" +
-                            "    input.dispatchEvent(new Event('change', {bubbles: true}));" +
-                            "    input.blur();" +
-                            "    return true;" +
-                            "  }" +
-                            "}" +
-                            "return false;", date
-            );
-        } catch (Exception e) {
-            LogUtil.error("Error filling date input", e);
-            return false;
-        }
-    }
-
-    private String generatePastDate(int minDaysAgo, int maxDaysAgo) {
-        Random random = new Random();
-        LocalDate date = LocalDate.now()
-                .minusDays(minDaysAgo + random.nextInt(maxDaysAgo - minDaysAgo));
-        return date.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
     }
 
     private String generateFutureDate(int minDaysAhead, int maxDaysAhead) {
