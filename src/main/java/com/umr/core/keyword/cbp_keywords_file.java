@@ -245,7 +245,7 @@ public class CBPKeywords {
 
     private boolean fill1DayLookoutForm(WebDriver driver, JavascriptExecutor js, WebDriverWait wait, TestContext context) {
         try {
-            LogUtil.info("Filling 1-Day Lookout form - Complete workflow");
+            LogUtil.info("Filling 1-Day Lookout form - Analyzing existing data first");
 
             // Wait for form to load
             Thread.sleep(10000);
@@ -254,94 +254,94 @@ public class CBPKeywords {
             analyzeExistingFormData(js);
 
             // 1. Fill Remarks (Required field - always empty)
-            LogUtil.info("1. Filling remarks field (required)");
+            LogUtil.info("Filling remarks field (required)");
             String remarks = "Automated 1-Day Lookout - Created at " + System.currentTimeMillis() + " - Subject flagged for review per automated screening protocols";
             Boolean remarksResult = fillRemarksField(js, remarks);
             LogUtil.info("Remarks filled: " + remarksResult);
+
             Thread.sleep(2000);
 
             // 2. Fill Primary End Date if empty (Required field)
-            LogUtil.info("2. Checking and filling Primary End Date");
+            LogUtil.info("Checking and filling Primary End Date");
             String endDate = generateFutureDate(1, 30);
             Boolean endDateResult = fillPrimaryEndDate(js, endDate);
             LogUtil.info("Primary End Date result: " + endDateResult);
+
             Thread.sleep(2000);
 
-            // 3. Fill Height dropdown (Physical Description)
-            LogUtil.info("3. Filling Height dropdown");
-            Boolean heightResult = fillHeightDropdown(js, "5'8\"");
-            LogUtil.info("Height filled: " + heightResult);
+            // 3. Fill Height dropdown (Physical Descriptions)
+            LogUtil.info("Filling Height dropdown");
+            Boolean heightResult = fillHeightDropdown(js);
+            LogUtil.info("Height dropdown result: " + heightResult);
+
             Thread.sleep(2000);
 
-            // 4. Fill Weight field
-            LogUtil.info("4. Filling Weight field");
-            Boolean weightResult = fillWeightField(js, "170");
-            LogUtil.info("Weight filled: " + weightResult);
+            // 4. Fill Weight if empty
+            LogUtil.info("Checking and filling Weight field");
+            Boolean weightResult = fillWeightIfEmpty(js);
+            LogUtil.info("Weight field result: " + weightResult);
+
             Thread.sleep(2000);
 
-            // 5. Add and fill Race (if button exists)
-            LogUtil.info("5. Adding and filling Race");
+            // 5. Add and fill Race
+            LogUtil.info("Adding Race field");
             if (clickAddButtonSafe(js, "Add Race")) {
-                Thread.sleep(4000);
-                Boolean raceResult = selectFromLatestDropdown(js, "A - ASIAN");
+                Thread.sleep(4000); // More time for field to appear
+                Boolean raceResult = selectFromNewlyAddedDropdown(js, "Race", "A - ASIAN");
                 LogUtil.info("Race selection result: " + raceResult);
             }
+
             Thread.sleep(2000);
 
-            // 6. Add and fill Eye Color (if button exists)
-            LogUtil.info("6. Adding and filling Eye Color");
+            // 6. Add and fill Eye Color
+            LogUtil.info("Adding Eye Color field");
             if (clickAddButtonSafe(js, "Add Eye Color")) {
-                Thread.sleep(4000);
-                Boolean eyeResult = selectFromLatestDropdown(js, "BG - BLUE/GREEN");
+                Thread.sleep(4000); // More time for field to appear
+                Boolean eyeResult = selectFromNewlyAddedDropdown(js, "Eye Color", "BG - BLUE/GREEN");
                 LogUtil.info("Eye Color selection result: " + eyeResult);
             }
+
             Thread.sleep(2000);
 
-            // 7. Add and fill Hair Color (if button exists)
-            LogUtil.info("7. Adding and filling Hair Color");
+            // 7. Add and fill Hair Color
+            LogUtil.info("Adding Hair Color field");
             if (clickAddButtonSafe(js, "Add Hair Color")) {
-                Thread.sleep(4000);
-                Boolean hairResult = selectFromLatestDropdown(js, "BA - BALD");
+                Thread.sleep(4000); // More time for field to appear
+                Boolean hairResult = selectFromNewlyAddedDropdown(js, "Hair Color", "BA - BALD");
                 LogUtil.info("Hair Color selection result: " + hairResult);
             }
+
             Thread.sleep(2000);
 
-            // 8. Add and fill A# if section is empty
-            LogUtil.info("8. Adding A# field");
+            // 8. Add and fill A#
+            LogUtil.info("Adding A# field");
             if (clickAddButtonSafe(js, "Add A#")) {
                 Thread.sleep(3000);
                 String aNumber = "123456789";
                 Boolean aNumberResult = fillAnumber(js, aNumber);
-                LogUtil.info("A# filled: " + aNumberResult);
+                LogUtil.info("A# field result: " + aNumberResult);
             }
+
             Thread.sleep(2000);
 
             // 9. Add and fill Driver's License
-            LogUtil.info("9. Adding Driver's License");
+            LogUtil.info("Adding Driver's License field");
             if (clickAddButtonSafe(js, "Add Driver's License")) {
                 Thread.sleep(4000);
                 Boolean licenseResult = fillDriversLicense(js);
-                LogUtil.info("Driver's License filled: " + licenseResult);
+                LogUtil.info("Driver's License result: " + licenseResult);
             }
-            Thread.sleep(2000);
 
-            // 10. Add SSN if available
-            LogUtil.info("10. Adding SSN if available");
-            if (clickAddButtonSafe(js, "Add SSN")) {
-                Thread.sleep(3000);
-                Boolean ssnResult = fillSSN(js, "123-45-6789");
-                LogUtil.info("SSN filled: " + ssnResult);
-            }
-            Thread.sleep(2000);
+            Thread.sleep(3000);
 
-            // 11. Take final screenshot
-            String finalScreenshotPath = ScreenshotUtils.takeScreenshot("1Day_Lookout_Form_Filled_Complete");
+            // 10. Take final screenshot
+            String finalScreenshotPath = ScreenshotUtils.takeScreenshot("1Day_Lookout_Form_Filled");
             if (finalScreenshotPath != null) {
                 ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
-                        finalScreenshotPath, "Complete Form Filled - Ready for Submission");
+                        finalScreenshotPath, "Form Filled - Ready for Submission");
             }
 
-            LogUtil.info("1-Day Lookout form filling completed successfully - All fields processed");
+            LogUtil.info("1-Day Lookout form filling completed successfully");
             return true;
 
         } catch (Exception e) {
@@ -350,55 +350,50 @@ public class CBPKeywords {
         }
     }
 
-    // === FORM ANALYSIS AND BASIC FIELD FILLING METHODS ===
+    // === NEW ROBUST HELPER METHODS BASED ON FORMFILLER PATTERNS ===
 
     private void analyzeExistingFormData(JavascriptExecutor js) {
         try {
             LogUtil.info("=== ANALYZING EXISTING FORM DATA ===");
 
+            // Check what's already filled
             String analysis = (String) js.executeScript(
                     "var analysis = [];" +
                             "analysis.push('=== FORM ANALYSIS ===');" +
 
                             // Check Sex field
-                            "var sexElements = document.querySelectorAll('*');" +
-                            "var foundSex = false;" +
-                            "for (var i = 0; i < sexElements.length; i++) {" +
-                            "  if (sexElements[i].textContent && sexElements[i].textContent.includes('F - FEMALE')) {" +
-                            "    analysis.push('Sex: Already filled (F - FEMALE)');" +
-                            "    foundSex = true;" +
-                            "    break;" +
-                            "  } else if (sexElements[i].textContent && sexElements[i].textContent.includes('M - MALE')) {" +
-                            "    analysis.push('Sex: Already filled (M - MALE)');" +
-                            "    foundSex = true;" +
+                            "var sexSelect = document.querySelector('select, mat-select');" +
+                            "if (sexSelect && sexSelect.textContent.includes('FEMALE')) {" +
+                            "  analysis.push('Sex: Already filled (FEMALE)');" +
+                            "} else if (sexSelect && sexSelect.textContent.includes('MALE')) {" +
+                            "  analysis.push('Sex: Already filled (MALE)');" +
+                            "} else {" +
+                            "  analysis.push('Sex: Not found or empty');" +
+                            "}" +
+
+                            // Check Height
+                            "var heightSelects = document.querySelectorAll('select, mat-select');" +
+                            "var heightFound = false;" +
+                            "for (var h = 0; h < heightSelects.length; h++) {" +
+                            "  if (heightSelects[h].textContent && (heightSelects[h].textContent.includes('Height') || heightSelects[h].textContent.includes('Select Height'))) {" +
+                            "    analysis.push('Height: Found dropdown');" +
+                            "    heightFound = true;" +
                             "    break;" +
                             "  }" +
                             "}" +
-                            "if (!foundSex) analysis.push('Sex: Not found or empty');" +
+                            "if (!heightFound) analysis.push('Height: Dropdown not found');" +
 
                             // Check Citizenship
                             "var citizenshipElements = document.querySelectorAll('*');" +
                             "var foundCitizenship = false;" +
-                            "for (var j = 0; j < citizenshipElements.length; j++) {" +
-                            "  if (citizenshipElements[j].textContent && citizenshipElements[j].textContent.includes('USA - UNITED STATES')) {" +
+                            "for (var i = 0; i < citizenshipElements.length; i++) {" +
+                            "  if (citizenshipElements[i].textContent && citizenshipElements[i].textContent.includes('USA')) {" +
                             "    analysis.push('Citizenship: Already filled (USA)');" +
                             "    foundCitizenship = true;" +
                             "    break;" +
                             "  }" +
                             "}" +
                             "if (!foundCitizenship) analysis.push('Citizenship: Not found');" +
-
-                            // Check Passport
-                            "var passportElements = document.querySelectorAll('*');" +
-                            "var foundPassport = false;" +
-                            "for (var k = 0; k < passportElements.length; k++) {" +
-                            "  if (passportElements[k].textContent && passportElements[k].textContent.includes('R - Regular')) {" +
-                            "    analysis.push('Passport: Already filled (R - Regular)');" +
-                            "    foundPassport = true;" +
-                            "    break;" +
-                            "  }" +
-                            "}" +
-                            "if (!foundPassport) analysis.push('Passport: Not found');" +
 
                             // Check Remarks
                             "var textarea = document.querySelector('textarea[maxlength=\"3000\"]');" +
@@ -445,6 +440,7 @@ public class CBPKeywords {
 
     private Boolean fillPrimaryEndDate(JavascriptExecutor js, String endDate) {
         try {
+            // Look for Primary End Date specifically
             return (Boolean) js.executeScript(
                     "var found = false;" +
                             "var labels = document.querySelectorAll('b, label, span');" +
@@ -453,7 +449,7 @@ public class CBPKeywords {
                             "    var container = labels[i].closest('div');" +
                             "    if (container) {" +
                             "      var dateInput = container.querySelector('input[mask=\"00/00/0000\"]');" +
-                            "      if (dateInput) {" +
+                            "      if (dateInput && dateInput.value === '') {" +
                             "        dateInput.focus();" +
                             "        dateInput.value = arguments[0];" +
                             "        dateInput.dispatchEvent(new Event('input', {bubbles: true}));" +
@@ -473,62 +469,74 @@ public class CBPKeywords {
         }
     }
 
-    // === PHYSICAL DESCRIPTION AND ADDITIONAL FIELD METHODS ===
-
-    private Boolean fillHeightDropdown(JavascriptExecutor js, String height) {
+    private Boolean fillHeightDropdown(JavascriptExecutor js) {
         try {
-            LogUtil.info("Filling height dropdown with: " + height);
+            LogUtil.info("Looking for Height dropdown in Physical Descriptions");
             return (Boolean) js.executeScript(
-                    "var labels = document.querySelectorAll('label, b, span');" +
-                            "for (var i = 0; i < labels.length; i++) {" +
-                            "  if (labels[i].textContent && labels[i].textContent.includes('Height')) {" +
-                            "    var container = labels[i].closest('div');" +
-                            "    if (container) {" +
-                            "      var heightSelect = container.querySelector('select, mat-select');" +
-                            "      if (heightSelect) {" +
-                            "        heightSelect.scrollIntoView({behavior: 'smooth', block: 'center'});" +
-                            "        var trigger = heightSelect.querySelector('.mat-select-trigger');" +
-                            "        if (trigger) {" +
-                            "          trigger.click();" +
-                            "          setTimeout(() => {" +
-                            "            var options = document.querySelectorAll('mat-option');" +
-                            "            for (var j = 0; j < options.length; j++) {" +
-                            "              if (options[j].offsetParent !== null && options[j].textContent.includes('5\\'8')) {" +
-                            "                options[j].click();" +
-                            "                setTimeout(() => document.body.click(), 500);" +
-                            "                return;" +
-                            "              }" +
-                            "            }" +
-                            "          }, 2000);" +
-                            "          return true;" +
-                            "        }" +
+                    "return new Promise((resolve) => {" +
+                            "  var labels = document.querySelectorAll('label, span, b');" +
+                            "  var heightContainer = null;" +
+                            "  for (var i = 0; i < labels.length; i++) {" +
+                            "    if (labels[i].textContent && labels[i].textContent.includes('Height')) {" +
+                            "      heightContainer = labels[i].closest('div');" +
+                            "      break;" +
+                            "    }" +
+                            "  }" +
+                            "  if (!heightContainer) {" +
+                            "    var selects = document.querySelectorAll('select, mat-select');" +
+                            "    for (var j = 0; j < selects.length; j++) {" +
+                            "      if (selects[j].textContent && selects[j].textContent.includes('Select Height')) {" +
+                            "        heightContainer = selects[j];" +
+                            "        break;" +
                             "      }" +
                             "    }" +
                             "  }" +
-                            "}" +
-                            "return false;"
+                            "  if (!heightContainer) { resolve(false); return; }" +
+                            "  var heightSelect = heightContainer.querySelector ? heightContainer.querySelector('select, mat-select') : heightContainer;" +
+                            "  if (!heightSelect) { resolve(false); return; }" +
+                            "  var trigger = heightSelect.querySelector('.mat-select-trigger');" +
+                            "  if (trigger) { trigger.click(); } else { heightSelect.click(); }" +
+                            "  setTimeout(() => {" +
+                            "    var options = document.querySelectorAll('mat-option, option');" +
+                            "    for (var k = 0; k < options.length; k++) {" +
+                            "      var optionText = options[k].textContent.trim();" +
+                            "      if (optionText.includes('5\\'') && optionText.includes('8') && options[k].offsetParent !== null) {" +
+                            "        options[k].click();" +
+                            "        setTimeout(() => { document.body.click(); resolve(true); }, 500);" +
+                            "        return;" +
+                            "      }" +
+                            "    }" +
+                            "    for (var l = 0; l < options.length; l++) {" +
+                            "      var optText = options[l].textContent.trim();" +
+                            "      if ((optText.includes('5\\'') || optText.includes('6\\'')) && options[l].offsetParent !== null) {" +
+                            "        options[l].click();" +
+                            "        setTimeout(() => { document.body.click(); resolve(true); }, 500);" +
+                            "        return;" +
+                            "      }" +
+                            "    }" +
+                            "    resolve(false);" +
+                            "  }, 3000);" +
+                            "});"
             );
         } catch (Exception e) {
-            LogUtil.error("Error filling height", e);
+            LogUtil.error("Error filling height dropdown", e);
             return false;
         }
     }
 
-    private Boolean fillWeightField(JavascriptExecutor js, String weight) {
+    private Boolean fillWeightIfEmpty(JavascriptExecutor js) {
         try {
-            LogUtil.info("Filling weight field with: " + weight);
             return (Boolean) js.executeScript(
                     "var weightInput = document.querySelector('input[mask=\"0*\"][maxlength=\"4\"]');" +
-                            "if (weightInput) {" +
-                            "  weightInput.scrollIntoView({behavior: 'smooth', block: 'center'});" +
+                            "if (weightInput && weightInput.value === '') {" +
                             "  weightInput.focus();" +
-                            "  weightInput.value = arguments[0];" +
+                            "  weightInput.value = '150';" +
                             "  weightInput.dispatchEvent(new Event('input', {bubbles: true}));" +
                             "  weightInput.dispatchEvent(new Event('change', {bubbles: true}));" +
                             "  weightInput.blur();" +
                             "  return true;" +
                             "}" +
-                            "return false;", weight
+                            "return false;"
             );
         } catch (Exception e) {
             LogUtil.error("Error filling weight", e);
@@ -536,170 +544,9 @@ public class CBPKeywords {
         }
     }
 
-    private boolean selectFromLatestDropdown(JavascriptExecutor js, String optionText) {
-        try {
-            LogUtil.info("Selecting '" + optionText + "' from latest dropdown");
-
-            // Close any open dropdowns first
-            js.executeScript("document.body.click();");
-            Thread.sleep(1000);
-
-            Boolean result = (Boolean) js.executeScript(
-                    "return new Promise((resolve) => {" +
-                            "  var selects = Array.from(document.querySelectorAll('mat-select:not([aria-disabled=\"true\"])'));" +
-                            "  var visibleSelects = selects.filter(s => {" +
-                            "    var rect = s.getBoundingClientRect();" +
-                            "    return rect.width > 0 && rect.height > 0;" +
-                            "  });" +
-                            "  if (visibleSelects.length === 0) { resolve(false); return; }" +
-                            "  var newest = visibleSelects[visibleSelects.length - 1];" +
-                            "  newest.scrollIntoView({behavior: 'smooth', block: 'center'});" +
-                            "  var trigger = newest.querySelector('.mat-select-trigger');" +
-                            "  if (!trigger) { resolve(false); return; }" +
-                            "  trigger.click();" +
-                            "  setTimeout(() => {" +
-                            "    var options = Array.from(document.querySelectorAll('mat-option:not(.mat-option-disabled)'));" +
-                            "    var visibleOptions = options.filter(o => o.offsetParent !== null);" +
-                            "    console.log('Found ' + visibleOptions.length + ' visible options');" +
-                            "    for (var i = 0; i < visibleOptions.length; i++) {" +
-                            "      console.log('Option ' + i + ': ' + visibleOptions[i].textContent);" +
-                            "      if (visibleOptions[i].textContent.includes(arguments[0])) {" +
-                            "        visibleOptions[i].click();" +
-                            "        setTimeout(() => { document.body.click(); resolve(true); }, 500);" +
-                            "        return;" +
-                            "      }" +
-                            "    }" +
-                            "    // If exact match not found, try partial match" +
-                            "    for (var j = 0; j < visibleOptions.length; j++) {" +
-                            "      var optText = arguments[0].split(' - ')[0];" +
-                            "      if (visibleOptions[j].textContent.includes(optText)) {" +
-                            "        visibleOptions[j].click();" +
-                            "        setTimeout(() => { document.body.click(); resolve(true); }, 500);" +
-                            "        return;" +
-                            "      }" +
-                            "    }" +
-                            "    // If still no match, select first available option" +
-                            "    if (visibleOptions.length > 0) {" +
-                            "      visibleOptions[0].click();" +
-                            "      setTimeout(() => { document.body.click(); resolve(true); }, 500);" +
-                            "    } else {" +
-                            "      resolve(false);" +
-                            "    }" +
-                            "  }, 3000);" +
-                            "});", optionText
-            );
-
-            Thread.sleep(3000);
-            return result != null && result;
-        } catch (Exception e) {
-            LogUtil.error("Error selecting from latest dropdown: " + optionText, e);
-            return false;
-        }
-    }
-
-    private boolean fillDriversLicense(JavascriptExecutor js) {
-        try {
-            LogUtil.info("Filling Driver's License information");
-
-            // Fill license number
-            Boolean licenseNumberResult = (Boolean) js.executeScript(
-                    "var labels = document.querySelectorAll('label, b, span');" +
-                            "for (var i = 0; i < labels.length; i++) {" +
-                            "  if (labels[i].textContent && labels[i].textContent.includes('License #')) {" +
-                            "    var container = labels[i].closest('div');" +
-                            "    if (container) {" +
-                            "      var input = container.querySelector('input[maxlength=\"20\"]');" +
-                            "      if (input && input.value === '') {" +
-                            "        input.focus();" +
-                            "        input.value = 'DL123456789';" +
-                            "        input.dispatchEvent(new Event('input', {bubbles: true}));" +
-                            "        input.dispatchEvent(new Event('change', {bubbles: true}));" +
-                            "        input.blur();" +
-                            "        return true;" +
-                            "      }" +
-                            "    }" +
-                            "  }" +
-                            "}" +
-                            "return false;"
-            );
-
-            Thread.sleep(2000);
-
-            // Select state
-            Boolean stateResult = (Boolean) js.executeScript(
-                    "var labels = document.querySelectorAll('label, b, span');" +
-                            "for (var i = 0; i < labels.length; i++) {" +
-                            "  if (labels[i].textContent && labels[i].textContent.includes('State')) {" +
-                            "    var container = labels[i].closest('div');" +
-                            "    if (container) {" +
-                            "      var stateSelect = container.querySelector('select, mat-select');" +
-                            "      if (stateSelect) {" +
-                            "        var trigger = stateSelect.querySelector('.mat-select-trigger');" +
-                            "        if (trigger) {" +
-                            "          trigger.click();" +
-                            "          setTimeout(() => {" +
-                            "            var options = document.querySelectorAll('mat-option');" +
-                            "            for (var j = 0; j < options.length; j++) {" +
-                            "              if (options[j].offsetParent !== null && (options[j].textContent.includes('VA') || options[j].textContent.includes('Virginia'))) {" +
-                            "                options[j].click();" +
-                            "                setTimeout(() => document.body.click(), 500);" +
-                            "                return;" +
-                            "              }" +
-                            "            }" +
-                            "            // If VA not found, select first available state" +
-                            "            if (options.length > 1) {" +
-                            "              options[1].click();" +
-                            "              setTimeout(() => document.body.click(), 500);" +
-                            "            }" +
-                            "          }, 2000);" +
-                            "          return true;" +
-                            "        }" +
-                            "      }" +
-                            "    }" +
-                            "  }" +
-                            "}" +
-                            "return false;"
-            );
-
-            LogUtil.info("Driver's License - Number: " + licenseNumberResult + ", State: " + stateResult);
-            return licenseNumberResult != null && licenseNumberResult;
-
-        } catch (Exception e) {
-            LogUtil.error("Error filling driver's license", e);
-            return false;
-        }
-    }
-
-    private boolean fillSSN(JavascriptExecutor js, String ssn) {
-        try {
-            LogUtil.info("Filling SSN with: " + ssn);
-            return (Boolean) js.executeScript(
-                    "var inputs = document.querySelectorAll('input[mask=\"000-00-0000\"]');" +
-                            "if (inputs.length > 0) {" +
-                            "  var ssnInput = inputs[inputs.length - 1];" +
-                            "  ssnInput.focus();" +
-                            "  ssnInput.value = arguments[0];" +
-                            "  ssnInput.dispatchEvent(new Event('input', {bubbles: true}));" +
-                            "  ssnInput.dispatchEvent(new Event('change', {bubbles: true}));" +
-                            "  ssnInput.blur();" +
-                            "  return true;" +
-                            "}" +
-                            "return false;", ssn
-            );
-        } catch (Exception e) {
-            LogUtil.error("Error filling SSN", e);
-            return false;
-        }
-    }
-
     private boolean clickAddButtonSafe(JavascriptExecutor js, String buttonText) {
         try {
             LogUtil.info("Attempting to click: " + buttonText);
-
-            // Close any open dropdowns first
-            js.executeScript("document.body.click();");
-            Thread.sleep(500);
-
             Boolean result = (Boolean) js.executeScript(
                     "var buttons = document.querySelectorAll('button.add-button, button.mat-raised-button, button');" +
                             "for (var i = 0; i < buttons.length; i++) {" +
@@ -718,32 +565,78 @@ public class CBPKeywords {
         }
     }
 
+    private boolean selectFromNewlyAddedDropdown(JavascriptExecutor js, String fieldType, String optionText) {
+        try {
+            LogUtil.info("Selecting '" + optionText + "' from newly added " + fieldType + " dropdown");
+
+            Boolean result = (Boolean) js.executeScript(
+                    "return new Promise((resolve) => {" +
+                            "  setTimeout(() => {" +
+                            "    var labels = document.querySelectorAll('label, mat-label, span');" +
+                            "    var targetDropdown = null;" +
+                            "    for (var i = 0; i < labels.length; i++) {" +
+                            "      if (labels[i].textContent && labels[i].textContent.includes(arguments[0])) {" +
+                            "        var container = labels[i].closest('div, mat-form-field, .tecs-flex-container');" +
+                            "        if (container) {" +
+                            "          var dropdown = container.querySelector('mat-select:not([aria-disabled=\"true\"])');" +
+                            "          if (dropdown) {" +
+                            "            targetDropdown = dropdown;" +
+                            "            break;" +
+                            "          }" +
+                            "        }" +
+                            "      }" +
+                            "    }" +
+                            "    if (!targetDropdown) {" +
+                            "      var allDropdowns = document.querySelectorAll('mat-select:not([aria-disabled=\"true\"])');" +
+                            "      if (allDropdowns.length > 0) {" +
+                            "        targetDropdown = allDropdowns[allDropdowns.length - 1];" +
+                            "      }" +
+                            "    }" +
+                            "    if (!targetDropdown) { resolve(false); return; }" +
+                            "    var trigger = targetDropdown.querySelector('.mat-select-trigger');" +
+                            "    if (!trigger) { resolve(false); return; }" +
+                            "    trigger.click();" +
+                            "    setTimeout(() => {" +
+                            "      var options = document.querySelectorAll('mat-option:not(.mat-option-disabled)');" +
+                            "      for (var j = 0; j < options.length; j++) {" +
+                            "        if (options[j].offsetParent !== null && options[j].textContent.includes(arguments[1])) {" +
+                            "          options[j].click();" +
+                            "          setTimeout(() => { document.body.click(); resolve(true); }, 500);" +
+                            "          return;" +
+                            "        }" +
+                            "      }" +
+                            "      resolve(false);" +
+                            "    }, 3000);" +
+                            "  }, 1000);" +
+                            "});", fieldType, optionText
+            );
+
+            Thread.sleep(4000);
+            return result != null && result;
+        } catch (Exception e) {
+            LogUtil.error("Error selecting from " + fieldType + " dropdown: " + optionText, e);
+            return false;
+        }
+    }
+
     private boolean fillAnumber(JavascriptExecutor js, String aNumber) {
         try {
             LogUtil.info("Filling A# field with: " + aNumber);
             Thread.sleep(2000);
 
             Boolean result = (Boolean) js.executeScript(
-                    "var inputs = document.querySelectorAll('input');" +
-                            "var aNumberInputs = [];" +
-                            "for (var i = 0; i < inputs.length; i++) {" +
+                    "var inputs = document.querySelectorAll('input[mask=\"0*\"], input[maxlength=\"9\"]');" +
+                            "for (var i = inputs.length - 1; i >= 0; i--) {" +
                             "  var input = inputs[i];" +
-                            "  if ((input.getAttribute('mask') === '0*' && input.getAttribute('maxlength') === '9') ||" +
-                            "      (input.getAttribute('maxlength') === '9' && input.type === 'text')) {" +
-                            "    var rect = input.getBoundingClientRect();" +
-                            "    if (rect.width > 0 && rect.height > 0) {" +
-                            "      aNumberInputs.push(input);" +
-                            "    }" +
+                            "  var rect = input.getBoundingClientRect();" +
+                            "  if (rect.width > 0 && rect.height > 0 && input.value === '') {" +
+                            "    input.focus();" +
+                            "    input.value = arguments[0];" +
+                            "    input.dispatchEvent(new Event('input', {bubbles: true}));" +
+                            "    input.dispatchEvent(new Event('change', {bubbles: true}));" +
+                            "    input.blur();" +
+                            "    return true;" +
                             "  }" +
-                            "}" +
-                            "if (aNumberInputs.length > 0) {" +
-                            "  var newest = aNumberInputs[aNumberInputs.length - 1];" +
-                            "  newest.focus();" +
-                            "  newest.value = arguments[0];" +
-                            "  newest.dispatchEvent(new Event('input', {bubbles: true}));" +
-                            "  newest.dispatchEvent(new Event('change', {bubbles: true}));" +
-                            "  newest.blur();" +
-                            "  return true;" +
                             "}" +
                             "return false;", aNumber
             );
@@ -755,11 +648,71 @@ public class CBPKeywords {
         }
     }
 
+    private boolean fillDriversLicense(JavascriptExecutor js) {
+        try {
+            LogUtil.info("Filling Driver's License information");
+            Thread.sleep(2000);
+
+            // Fill license number
+            Boolean licenseNumberResult = (Boolean) js.executeScript(
+                    "var inputs = document.querySelectorAll('input[maxlength=\"20\"]');" +
+                            "for (var i = inputs.length - 1; i >= 0; i--) {" +
+                            "  var input = inputs[i];" +
+                            "  var rect = input.getBoundingClientRect();" +
+                            "  if (rect.width > 0 && rect.height > 0 && input.value === '') {" +
+                            "    input.focus();" +
+                            "    input.value = 'DL' + Math.floor(Math.random() * 1000000);" +
+                            "    input.dispatchEvent(new Event('input', {bubbles: true}));" +
+                            "    input.dispatchEvent(new Event('change', {bubbles: true}));" +
+                            "    input.blur();" +
+                            "    return true;" +
+                            "  }" +
+                            "}" +
+                            "return false;"
+            );
+
+            Thread.sleep(2000);
+
+            // Select state
+            Boolean stateResult = (Boolean) js.executeScript(
+                    "return new Promise((resolve) => {" +
+                            "  var selects = document.querySelectorAll('mat-select:not([aria-disabled=\"true\"])');" +
+                            "  if (selects.length === 0) { resolve(false); return; }" +
+                            "  var newest = selects[selects.length - 1];" +
+                            "  var trigger = newest.querySelector('.mat-select-trigger');" +
+                            "  if (!trigger) { resolve(false); return; }" +
+                            "  trigger.click();" +
+                            "  setTimeout(() => {" +
+                            "    var options = document.querySelectorAll('mat-option:not(.mat-option-disabled)');" +
+                            "    for (var i = 0; i < options.length; i++) {" +
+                            "      var optText = options[i].textContent.trim();" +
+                            "      if (options[i].offsetParent !== null && (optText.includes('VA') || optText.includes('DC') || optText.includes('MD'))) {" +
+                            "        options[i].click();" +
+                            "        setTimeout(() => { document.body.click(); resolve(true); }, 500);" +
+                            "        return;" +
+                            "      }" +
+                            "    }" +
+                            "    if (options.length > 5) {" +
+                            "      options[5].click();" +
+                            "      setTimeout(() => { document.body.click(); resolve(true); }, 500);" +
+                            "    } else { resolve(false); }" +
+                            "  }, 3000);" +
+                            "});"
+            );
+
+            LogUtil.info("Driver's License - Number: " + licenseNumberResult + ", State: " + stateResult);
+            return licenseNumberResult != null && licenseNumberResult;
+
+        } catch (Exception e) {
+            LogUtil.error("Error filling driver's license", e);
+            return false;
+        }
+    }
+
     private String generateFutureDate(int minDaysAhead, int maxDaysAhead) {
         Random random = new Random();
         LocalDate date = LocalDate.now()
                 .plusDays(minDaysAhead + random.nextInt(maxDaysAhead - minDaysAhead));
         return date.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
     }
-}
 }
