@@ -245,7 +245,7 @@ public class CBPKeywords {
 
     private boolean fill1DayLookoutForm(WebDriver driver, JavascriptExecutor js, WebDriverWait wait, TestContext context) {
         try {
-            LogUtil.info("=== STARTING 1-DAY LOOKOUT FORM FILLING ===");
+            LogUtil.info("Filling 1-Day Lookout form - Complete workflow");
 
             // Wait for form to load
             Thread.sleep(10000);
@@ -253,191 +253,152 @@ public class CBPKeywords {
             // First, let's analyze what's already filled
             analyzeExistingFormData(js);
 
-            // === REQUIRED FIELDS FIRST ===
-
             // 1. Fill Remarks (Required field - always empty)
-            LogUtil.info("1. Filling remarks field (REQUIRED)");
+            LogUtil.info("1. Filling remarks field (required)");
             String remarks = "Automated 1-Day Lookout - Created at " + System.currentTimeMillis() + " - Subject flagged for review per automated screening protocols";
             Boolean remarksResult = fillRemarksField(js, remarks);
-            LogUtil.info("✅ Remarks filled: " + remarksResult);
+            LogUtil.info("Remarks filled: " + remarksResult);
             Thread.sleep(2000);
 
             // 2. Fill Primary End Date if empty (Required field)
-            LogUtil.info("2. Checking and filling Primary End Date (REQUIRED)");
+            LogUtil.info("2. Checking and filling Primary End Date");
             String endDate = generateFutureDate(1, 30);
             Boolean endDateResult = fillPrimaryEndDate(js, endDate);
-            LogUtil.info("✅ Primary End Date result: " + endDateResult);
+            LogUtil.info("Primary End Date result: " + endDateResult);
             Thread.sleep(2000);
 
-            // === BASIC FIELDS ===
-
-            // 3. Fill Weight if empty
-            LogUtil.info("3. Checking and filling Weight field");
-            Boolean weightResult = fillWeightIfEmpty(js);
-            LogUtil.info("✅ Weight field result: " + weightResult);
+            // 3. Fill Height dropdown (Physical Description)
+            LogUtil.info("3. Filling Height dropdown");
+            Boolean heightResult = fillHeightDropdown(js, "5'8\"");
+            LogUtil.info("Height filled: " + heightResult);
             Thread.sleep(2000);
 
-            // === ADD SECTIONS WITH ROBUST DROPDOWN HANDLING ===
+            // 4. Fill Weight field
+            LogUtil.info("4. Filling Weight field");
+            Boolean weightResult = fillWeightField(js, "170");
+            LogUtil.info("Weight filled: " + weightResult);
+            Thread.sleep(2000);
 
-            // 4. Add Race if missing
-            if (shouldAddRaceField(js)) {
-                LogUtil.info("4. 🎯 Adding Race field");
-                if (clickAddButtonSafe(js, "Add Race")) {
-                    Thread.sleep(4000); // Wait longer for dropdown to appear
-                    boolean raceSelected = selectFromDropdownRobust(js, "A - ASIAN", "Race");
-                    LogUtil.info("✅ Race selection result: " + raceSelected);
-                }
-            } else {
-                LogUtil.info("4. ⏭️ Race field exists, skipping");
+            // 5. Add and fill Race (if button exists)
+            LogUtil.info("5. Adding and filling Race");
+            if (clickAddButtonSafe(js, "Add Race")) {
+                Thread.sleep(4000);
+                Boolean raceResult = selectFromLatestDropdown(js, "A - ASIAN");
+                LogUtil.info("Race selection result: " + raceResult);
             }
-            Thread.sleep(3000);
+            Thread.sleep(2000);
 
-            // 5. Add Eye Color if missing
-            if (shouldAddEyeColorField(js)) {
-                LogUtil.info("5. 🎯 Adding Eye Color field");
-                if (clickAddButtonSafe(js, "Add Eye Color")) {
-                    Thread.sleep(4000);
-                    boolean eyeColorSelected = selectFromDropdownRobust(js, "BG - BLUE/GREEN", "Eye Color");
-                    LogUtil.info("✅ Eye Color selection result: " + eyeColorSelected);
-                }
-            } else {
-                LogUtil.info("5. ⏭️ Eye Color field exists, skipping");
+            // 6. Add and fill Eye Color (if button exists)
+            LogUtil.info("6. Adding and filling Eye Color");
+            if (clickAddButtonSafe(js, "Add Eye Color")) {
+                Thread.sleep(4000);
+                Boolean eyeResult = selectFromLatestDropdown(js, "BG - BLUE/GREEN");
+                LogUtil.info("Eye Color selection result: " + eyeResult);
             }
-            Thread.sleep(3000);
+            Thread.sleep(2000);
 
-            // 6. Add Hair Color if missing
-            if (shouldAddHairColorField(js)) {
-                LogUtil.info("6. 🎯 Adding Hair Color field");
-                if (clickAddButtonSafe(js, "Add Hair Color")) {
-                    Thread.sleep(4000);
-                    boolean hairColorSelected = selectFromDropdownRobust(js, "BA - BALD", "Hair Color");
-                    LogUtil.info("✅ Hair Color selection result: " + hairColorSelected);
-                }
-            } else {
-                LogUtil.info("6. ⏭️ Hair Color field exists, skipping");
+            // 7. Add and fill Hair Color (if button exists)
+            LogUtil.info("7. Adding and filling Hair Color");
+            if (clickAddButtonSafe(js, "Add Hair Color")) {
+                Thread.sleep(4000);
+                Boolean hairResult = selectFromLatestDropdown(js, "BA - BALD");
+                LogUtil.info("Hair Color selection result: " + hairResult);
             }
-            Thread.sleep(3000);
+            Thread.sleep(2000);
 
-            // === IDENTIFICATION FIELDS ===
-
-            // 7. Add A# if section is empty
-            LogUtil.info("7. Checking A# section");
-            if (isAnumberSectionEmpty(js)) {
-                LogUtil.info("🎯 Adding A# - section appears empty");
-                if (clickAddButtonSafe(js, "Add A#")) {
-                    Thread.sleep(4000);
-                    String aNumber = "123456789";
-                    boolean aNumberFilled = fillAnumber(js, aNumber);
-                    LogUtil.info("✅ A# filled: " + aNumberFilled);
-                }
-            } else {
-                LogUtil.info("7. ⏭️ A# section already has data, skipping");
+            // 8. Add and fill A# if section is empty
+            LogUtil.info("8. Adding A# field");
+            if (clickAddButtonSafe(js, "Add A#")) {
+                Thread.sleep(3000);
+                String aNumber = "123456789";
+                Boolean aNumberResult = fillAnumber(js, aNumber);
+                LogUtil.info("A# filled: " + aNumberResult);
             }
-            Thread.sleep(3000);
+            Thread.sleep(2000);
 
-            // 8. Add Driver's License if missing
-            LogUtil.info("8. 🎯 Adding Driver's License");
+            // 9. Add and fill Driver's License
+            LogUtil.info("9. Adding Driver's License");
             if (clickAddButtonSafe(js, "Add Driver's License")) {
                 Thread.sleep(4000);
-
-                // Fill license number
-                String licenseNumber = "DL" + System.currentTimeMillis();
-                boolean licenseNumberFilled = fillNewestTextInput(js, licenseNumber);
-                LogUtil.info("✅ License number filled: " + licenseNumberFilled);
-
-                Thread.sleep(2000);
-
-                // Select state
-                boolean stateSelected = selectFromDropdownRobust(js, "VIRGINIA", "State");
-                LogUtil.info("✅ State selected: " + stateSelected);
+                Boolean licenseResult = fillDriversLicense(js);
+                LogUtil.info("Driver's License filled: " + licenseResult);
             }
-            Thread.sleep(3000);
+            Thread.sleep(2000);
 
-            // 9. Add SSN if missing
-            LogUtil.info("9. 🎯 Adding SSN");
+            // 10. Add SSN if available
+            LogUtil.info("10. Adding SSN if available");
             if (clickAddButtonSafe(js, "Add SSN")) {
-                Thread.sleep(4000);
-                String ssn = "123-45-6789";
-                boolean ssnFilled = fillSSNField(js, ssn);
-                LogUtil.info("✅ SSN filled: " + ssnFilled);
+                Thread.sleep(3000);
+                Boolean ssnResult = fillSSN(js, "123-45-6789");
+                LogUtil.info("SSN filled: " + ssnResult);
             }
-            Thread.sleep(3000);
+            Thread.sleep(2000);
 
-            // 10. Add Phone Number if missing
-            LogUtil.info("10. 🎯 Adding Phone Number");
-            if (clickAddButtonSafe(js, "Add Phone Number")) {
-                Thread.sleep(4000);
-
-                // Select phone type first
-                boolean phoneTypeSelected = selectFromDropdownRobust(js, "HOME", "Phone Type");
-                LogUtil.info("✅ Phone type selected: " + phoneTypeSelected);
-
-                Thread.sleep(2000);
-
-                // Select phone country
-                boolean phoneCountrySelected = selectFromDropdownRobust(js, "USA", "Phone Country");
-                LogUtil.info("✅ Phone country selected: " + phoneCountrySelected);
-
-                Thread.sleep(2000);
-
-                // Fill phone number
-                String phoneNumber = "2025551234";
-                boolean phoneNumberFilled = fillNewestTextInput(js, phoneNumber);
-                LogUtil.info("✅ Phone number filled: " + phoneNumberFilled);
-            }
-
-            Thread.sleep(3000);
-
-            // === FINAL STEPS ===
-
-            // Take final screenshot
+            // 11. Take final screenshot
             String finalScreenshotPath = ScreenshotUtils.takeScreenshot("1Day_Lookout_Form_Filled_Complete");
             if (finalScreenshotPath != null) {
                 ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
-                        finalScreenshotPath, "Form Completely Filled - Ready for Submission");
+                        finalScreenshotPath, "Complete Form Filled - Ready for Submission");
             }
 
-            LogUtil.info("🎉 1-Day Lookout form filling completed successfully!");
+            LogUtil.info("1-Day Lookout form filling completed successfully - All fields processed");
             return true;
 
         } catch (Exception e) {
-            LogUtil.error("❌ Error filling 1-Day Lookout form", e);
+            LogUtil.error("Error filling 1-Day Lookout form", e);
             return false;
         }
     }
 
-    // === NEW ROBUST HELPER METHODS BASED ON FORMFILLER PATTERNS ===
+    // === FORM ANALYSIS AND BASIC FIELD FILLING METHODS ===
 
     private void analyzeExistingFormData(JavascriptExecutor js) {
         try {
             LogUtil.info("=== ANALYZING EXISTING FORM DATA ===");
 
-            // Check what's already filled
             String analysis = (String) js.executeScript(
                     "var analysis = [];" +
                             "analysis.push('=== FORM ANALYSIS ===');" +
 
                             // Check Sex field
-                            "var sexSelect = document.querySelector('select, mat-select');" +
-                            "if (sexSelect && sexSelect.textContent.includes('FEMALE')) {" +
-                            "  analysis.push('Sex: Already filled (FEMALE)');" +
-                            "} else if (sexSelect && sexSelect.textContent.includes('MALE')) {" +
-                            "  analysis.push('Sex: Already filled (MALE)');" +
-                            "} else {" +
-                            "  analysis.push('Sex: Not found or empty');" +
+                            "var sexElements = document.querySelectorAll('*');" +
+                            "var foundSex = false;" +
+                            "for (var i = 0; i < sexElements.length; i++) {" +
+                            "  if (sexElements[i].textContent && sexElements[i].textContent.includes('F - FEMALE')) {" +
+                            "    analysis.push('Sex: Already filled (F - FEMALE)');" +
+                            "    foundSex = true;" +
+                            "    break;" +
+                            "  } else if (sexElements[i].textContent && sexElements[i].textContent.includes('M - MALE')) {" +
+                            "    analysis.push('Sex: Already filled (M - MALE)');" +
+                            "    foundSex = true;" +
+                            "    break;" +
+                            "  }" +
                             "}" +
+                            "if (!foundSex) analysis.push('Sex: Not found or empty');" +
 
                             // Check Citizenship
                             "var citizenshipElements = document.querySelectorAll('*');" +
                             "var foundCitizenship = false;" +
-                            "for (var i = 0; i < citizenshipElements.length; i++) {" +
-                            "  if (citizenshipElements[i].textContent && citizenshipElements[i].textContent.includes('USA')) {" +
+                            "for (var j = 0; j < citizenshipElements.length; j++) {" +
+                            "  if (citizenshipElements[j].textContent && citizenshipElements[j].textContent.includes('USA - UNITED STATES')) {" +
                             "    analysis.push('Citizenship: Already filled (USA)');" +
                             "    foundCitizenship = true;" +
                             "    break;" +
                             "  }" +
                             "}" +
                             "if (!foundCitizenship) analysis.push('Citizenship: Not found');" +
+
+                            // Check Passport
+                            "var passportElements = document.querySelectorAll('*');" +
+                            "var foundPassport = false;" +
+                            "for (var k = 0; k < passportElements.length; k++) {" +
+                            "  if (passportElements[k].textContent && passportElements[k].textContent.includes('R - Regular')) {" +
+                            "    analysis.push('Passport: Already filled (R - Regular)');" +
+                            "    foundPassport = true;" +
+                            "    break;" +
+                            "  }" +
+                            "}" +
+                            "if (!foundPassport) analysis.push('Passport: Not found');" +
 
                             // Check Remarks
                             "var textarea = document.querySelector('textarea[maxlength=\"3000\"]');" +
@@ -484,7 +445,6 @@ public class CBPKeywords {
 
     private Boolean fillPrimaryEndDate(JavascriptExecutor js, String endDate) {
         try {
-            // Look for Primary End Date specifically
             return (Boolean) js.executeScript(
                     "var found = false;" +
                             "var labels = document.querySelectorAll('b, label, span');" +
@@ -493,7 +453,7 @@ public class CBPKeywords {
                             "    var container = labels[i].closest('div');" +
                             "    if (container) {" +
                             "      var dateInput = container.querySelector('input[mask=\"00/00/0000\"]');" +
-                            "      if (dateInput && dateInput.value === '') {" +
+                            "      if (dateInput) {" +
                             "        dateInput.focus();" +
                             "        dateInput.value = arguments[0];" +
                             "        dateInput.dispatchEvent(new Event('input', {bubbles: true}));" +
@@ -513,19 +473,62 @@ public class CBPKeywords {
         }
     }
 
-    private Boolean fillWeightIfEmpty(JavascriptExecutor js) {
+    // === PHYSICAL DESCRIPTION AND ADDITIONAL FIELD METHODS ===
+
+    private Boolean fillHeightDropdown(JavascriptExecutor js, String height) {
         try {
+            LogUtil.info("Filling height dropdown with: " + height);
+            return (Boolean) js.executeScript(
+                    "var labels = document.querySelectorAll('label, b, span');" +
+                            "for (var i = 0; i < labels.length; i++) {" +
+                            "  if (labels[i].textContent && labels[i].textContent.includes('Height')) {" +
+                            "    var container = labels[i].closest('div');" +
+                            "    if (container) {" +
+                            "      var heightSelect = container.querySelector('select, mat-select');" +
+                            "      if (heightSelect) {" +
+                            "        heightSelect.scrollIntoView({behavior: 'smooth', block: 'center'});" +
+                            "        var trigger = heightSelect.querySelector('.mat-select-trigger');" +
+                            "        if (trigger) {" +
+                            "          trigger.click();" +
+                            "          setTimeout(() => {" +
+                            "            var options = document.querySelectorAll('mat-option');" +
+                            "            for (var j = 0; j < options.length; j++) {" +
+                            "              if (options[j].offsetParent !== null && options[j].textContent.includes('5\\'8')) {" +
+                            "                options[j].click();" +
+                            "                setTimeout(() => document.body.click(), 500);" +
+                            "                return;" +
+                            "              }" +
+                            "            }" +
+                            "          }, 2000);" +
+                            "          return true;" +
+                            "        }" +
+                            "      }" +
+                            "    }" +
+                            "  }" +
+                            "}" +
+                            "return false;"
+            );
+        } catch (Exception e) {
+            LogUtil.error("Error filling height", e);
+            return false;
+        }
+    }
+
+    private Boolean fillWeightField(JavascriptExecutor js, String weight) {
+        try {
+            LogUtil.info("Filling weight field with: " + weight);
             return (Boolean) js.executeScript(
                     "var weightInput = document.querySelector('input[mask=\"0*\"][maxlength=\"4\"]');" +
-                            "if (weightInput && weightInput.value === '') {" +
+                            "if (weightInput) {" +
+                            "  weightInput.scrollIntoView({behavior: 'smooth', block: 'center'});" +
                             "  weightInput.focus();" +
-                            "  weightInput.value = '150';" +
+                            "  weightInput.value = arguments[0];" +
                             "  weightInput.dispatchEvent(new Event('input', {bubbles: true}));" +
                             "  weightInput.dispatchEvent(new Event('change', {bubbles: true}));" +
                             "  weightInput.blur();" +
                             "  return true;" +
                             "}" +
-                            "return false;"
+                            "return false;", weight
             );
         } catch (Exception e) {
             LogUtil.error("Error filling weight", e);
@@ -533,351 +536,184 @@ public class CBPKeywords {
         }
     }
 
-    private boolean isAnumberSectionEmpty(JavascriptExecutor js) {
+    private boolean selectFromLatestDropdown(JavascriptExecutor js, String optionText) {
         try {
-            Boolean isEmpty = (Boolean) js.executeScript(
-                    "var aNumberSection = null;" +
-                            "var headings = document.querySelectorAll('.panel-heading, h3, h4, span');" +
-                            "for (var i = 0; i < headings.length; i++) {" +
-                            "  if (headings[i].textContent && headings[i].textContent.includes('A#')) {" +
-                            "    aNumberSection = headings[i].closest('.panel, div');" +
-                            "    break;" +
-                            "  }" +
-                            "}" +
-                            "if (aNumberSection) {" +
-                            "  var inputs = aNumberSection.querySelectorAll('input');" +
-                            "  for (var j = 0; j < inputs.length; j++) {" +
-                            "    if (inputs[j].value && inputs[j].value !== '') {" +
-                            "      return false;" +
+            LogUtil.info("Selecting '" + optionText + "' from latest dropdown");
+
+            // Close any open dropdowns first
+            js.executeScript("document.body.click();");
+            Thread.sleep(1000);
+
+            Boolean result = (Boolean) js.executeScript(
+                    "return new Promise((resolve) => {" +
+                            "  var selects = Array.from(document.querySelectorAll('mat-select:not([aria-disabled=\"true\"])'));" +
+                            "  var visibleSelects = selects.filter(s => {" +
+                            "    var rect = s.getBoundingClientRect();" +
+                            "    return rect.width > 0 && rect.height > 0;" +
+                            "  });" +
+                            "  if (visibleSelects.length === 0) { resolve(false); return; }" +
+                            "  var newest = visibleSelects[visibleSelects.length - 1];" +
+                            "  newest.scrollIntoView({behavior: 'smooth', block: 'center'});" +
+                            "  var trigger = newest.querySelector('.mat-select-trigger');" +
+                            "  if (!trigger) { resolve(false); return; }" +
+                            "  trigger.click();" +
+                            "  setTimeout(() => {" +
+                            "    var options = Array.from(document.querySelectorAll('mat-option:not(.mat-option-disabled)'));" +
+                            "    var visibleOptions = options.filter(o => o.offsetParent !== null);" +
+                            "    console.log('Found ' + visibleOptions.length + ' visible options');" +
+                            "    for (var i = 0; i < visibleOptions.length; i++) {" +
+                            "      console.log('Option ' + i + ': ' + visibleOptions[i].textContent);" +
+                            "      if (visibleOptions[i].textContent.includes(arguments[0])) {" +
+                            "        visibleOptions[i].click();" +
+                            "        setTimeout(() => { document.body.click(); resolve(true); }, 500);" +
+                            "        return;" +
+                            "      }" +
                             "    }" +
-                            "  }" +
-                            "  return true;" +
-                            "}" +
-                            "return true;"
+                            "    // If exact match not found, try partial match" +
+                            "    for (var j = 0; j < visibleOptions.length; j++) {" +
+                            "      var optText = arguments[0].split(' - ')[0];" +
+                            "      if (visibleOptions[j].textContent.includes(optText)) {" +
+                            "        visibleOptions[j].click();" +
+                            "        setTimeout(() => { document.body.click(); resolve(true); }, 500);" +
+                            "        return;" +
+                            "      }" +
+                            "    }" +
+                            "    // If still no match, select first available option" +
+                            "    if (visibleOptions.length > 0) {" +
+                            "      visibleOptions[0].click();" +
+                            "      setTimeout(() => { document.body.click(); resolve(true); }, 500);" +
+                            "    } else {" +
+                            "      resolve(false);" +
+                            "    }" +
+                            "  }, 3000);" +
+                            "});", optionText
             );
-            return isEmpty != null && isEmpty;
+
+            Thread.sleep(3000);
+            return result != null && result;
         } catch (Exception e) {
-            LogUtil.error("Error checking A# section", e);
-            return true; // Assume empty if error
+            LogUtil.error("Error selecting from latest dropdown: " + optionText, e);
+            return false;
         }
     }
 
-    private boolean shouldAddRaceField(JavascriptExecutor js) {
+    private boolean fillDriversLicense(JavascriptExecutor js) {
         try {
-            Boolean shouldAdd = (Boolean) js.executeScript(
-                    "var labels = document.querySelectorAll('label, mat-label, span, b');" +
+            LogUtil.info("Filling Driver's License information");
+
+            // Fill license number
+            Boolean licenseNumberResult = (Boolean) js.executeScript(
+                    "var labels = document.querySelectorAll('label, b, span');" +
                             "for (var i = 0; i < labels.length; i++) {" +
-                            "  if (labels[i].textContent && labels[i].textContent.includes('Race')) {" +
-                            "    var container = labels[i].closest('.panel, .tecs-flex-container, div');" +
+                            "  if (labels[i].textContent && labels[i].textContent.includes('License #')) {" +
+                            "    var container = labels[i].closest('div');" +
                             "    if (container) {" +
-                            "      var selects = container.querySelectorAll('select, mat-select');" +
-                            "      if (selects.length > 0) {" +
-                            "        return false;" +
+                            "      var input = container.querySelector('input[maxlength=\"20\"]');" +
+                            "      if (input && input.value === '') {" +
+                            "        input.focus();" +
+                            "        input.value = 'DL123456789';" +
+                            "        input.dispatchEvent(new Event('input', {bubbles: true}));" +
+                            "        input.dispatchEvent(new Event('change', {bubbles: true}));" +
+                            "        input.blur();" +
+                            "        return true;" +
                             "      }" +
                             "    }" +
                             "  }" +
                             "}" +
-                            "return true;"
+                            "return false;"
             );
-            return shouldAdd != null && shouldAdd;
+
+            Thread.sleep(2000);
+
+            // Select state
+            Boolean stateResult = (Boolean) js.executeScript(
+                    "var labels = document.querySelectorAll('label, b, span');" +
+                            "for (var i = 0; i < labels.length; i++) {" +
+                            "  if (labels[i].textContent && labels[i].textContent.includes('State')) {" +
+                            "    var container = labels[i].closest('div');" +
+                            "    if (container) {" +
+                            "      var stateSelect = container.querySelector('select, mat-select');" +
+                            "      if (stateSelect) {" +
+                            "        var trigger = stateSelect.querySelector('.mat-select-trigger');" +
+                            "        if (trigger) {" +
+                            "          trigger.click();" +
+                            "          setTimeout(() => {" +
+                            "            var options = document.querySelectorAll('mat-option');" +
+                            "            for (var j = 0; j < options.length; j++) {" +
+                            "              if (options[j].offsetParent !== null && (options[j].textContent.includes('VA') || options[j].textContent.includes('Virginia'))) {" +
+                            "                options[j].click();" +
+                            "                setTimeout(() => document.body.click(), 500);" +
+                            "                return;" +
+                            "              }" +
+                            "            }" +
+                            "            // If VA not found, select first available state" +
+                            "            if (options.length > 1) {" +
+                            "              options[1].click();" +
+                            "              setTimeout(() => document.body.click(), 500);" +
+                            "            }" +
+                            "          }, 2000);" +
+                            "          return true;" +
+                            "        }" +
+                            "      }" +
+                            "    }" +
+                            "  }" +
+                            "}" +
+                            "return false;"
+            );
+
+            LogUtil.info("Driver's License - Number: " + licenseNumberResult + ", State: " + stateResult);
+            return licenseNumberResult != null && licenseNumberResult;
+
         } catch (Exception e) {
+            LogUtil.error("Error filling driver's license", e);
             return false;
         }
     }
 
-    private boolean shouldAddEyeColorField(JavascriptExecutor js) {
+    private boolean fillSSN(JavascriptExecutor js, String ssn) {
         try {
-            Boolean shouldAdd = (Boolean) js.executeScript(
-                    "var labels = document.querySelectorAll('label, mat-label, span, b');" +
-                            "for (var i = 0; i < labels.length; i++) {" +
-                            "  if (labels[i].textContent && labels[i].textContent.includes('Eye Color')) {" +
-                            "    return false;" +
-                            "  }" +
+            LogUtil.info("Filling SSN with: " + ssn);
+            return (Boolean) js.executeScript(
+                    "var inputs = document.querySelectorAll('input[mask=\"000-00-0000\"]');" +
+                            "if (inputs.length > 0) {" +
+                            "  var ssnInput = inputs[inputs.length - 1];" +
+                            "  ssnInput.focus();" +
+                            "  ssnInput.value = arguments[0];" +
+                            "  ssnInput.dispatchEvent(new Event('input', {bubbles: true}));" +
+                            "  ssnInput.dispatchEvent(new Event('change', {bubbles: true}));" +
+                            "  ssnInput.blur();" +
+                            "  return true;" +
                             "}" +
-                            "return true;"
+                            "return false;", ssn
             );
-            return shouldAdd != null && shouldAdd;
         } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private boolean shouldAddHairColorField(JavascriptExecutor js) {
-        try {
-            Boolean shouldAdd = (Boolean) js.executeScript(
-                    "var labels = document.querySelectorAll('label, mat-label, span, b');" +
-                            "for (var i = 0; i < labels.length; i++) {" +
-                            "  if (labels[i].textContent && labels[i].textContent.includes('Hair Color')) {" +
-                            "    return false;" +
-                            "  }" +
-                            "}" +
-                            "return true;"
-            );
-            return shouldAdd != null && shouldAdd;
-        } catch (Exception e) {
+            LogUtil.error("Error filling SSN", e);
             return false;
         }
     }
 
     private boolean clickAddButtonSafe(JavascriptExecutor js, String buttonText) {
         try {
-            LogUtil.info("🎯 ROBUST: Attempting to click: " + buttonText);
+            LogUtil.info("Attempting to click: " + buttonText);
 
-            // First, let's see what buttons are available
-            String availableButtons = (String) js.executeScript(
-                    "var buttons = document.querySelectorAll('button');" +
-                            "var buttonTexts = [];" +
-                            "for (var i = 0; i < buttons.length; i++) {" +
-                            "  var text = buttons[i].textContent.trim();" +
-                            "  if (text.length > 0) {" +
-                            "    buttonTexts.push(text);" +
-                            "  }" +
-                            "}" +
-                            "return 'Available buttons: ' + buttonTexts.join(', ');"
-            );
-            LogUtil.info("DEBUG: " + availableButtons);
+            // Close any open dropdowns first
+            js.executeScript("document.body.click();");
+            Thread.sleep(500);
 
             Boolean result = (Boolean) js.executeScript(
                     "var buttons = document.querySelectorAll('button.add-button, button.mat-raised-button, button');" +
                             "for (var i = 0; i < buttons.length; i++) {" +
-                            "  var buttonTextContent = buttons[i].textContent.trim();" +
-                            "  console.log('Checking button: ' + buttonTextContent);" +
-                            "  if (buttonTextContent.includes(arguments[0])) {" +
-                            "    console.log('Found matching button: ' + buttonTextContent);" +
+                            "  if (buttons[i].textContent && buttons[i].textContent.includes(arguments[0])) {" +
                             "    buttons[i].scrollIntoView({behavior: 'smooth', block: 'center'});" +
-                            "    setTimeout(() => {" +
-                            "      buttons[i].click();" +
-                            "      console.log('Button clicked: ' + arguments[0]);" +
-                            "    }, 1000);" +
+                            "    buttons[i].click();" +
                             "    return true;" +
                             "  }" +
                             "}" +
-                            "console.log('No matching button found for: ' + arguments[0]);" +
                             "return false;", buttonText
             );
-
-            if (result != null && result) {
-                LogUtil.info("✅ Successfully clicked: " + buttonText);
-                return true;
-            } else {
-                LogUtil.error("❌ Failed to find/click button: " + buttonText);
-                return false;
-            }
-        } catch (Exception e) {
-            LogUtil.error("❌ Error clicking add button: " + buttonText, e);
-            return false;
-        }
-    }
-
-    // === ROBUST DROPDOWN SELECTION BASED ON FORMFILLER PATTERNS ===
-
-    private boolean selectFromDropdownRobust(JavascriptExecutor js, String optionText, String context) {
-        try {
-            LogUtil.info("🎯 ROBUST: Selecting '" + optionText + "' for " + context);
-
-            // Step 1: Force close any existing dropdowns
-            forceCloseAllDropdowns(js);
-            Thread.sleep(500);
-
-            // Step 2: Debug what dropdowns are available
-            debugDropdownState(js, context);
-
-            // Step 3: Find and click the newest dropdown
-            Boolean dropdownOpened = (Boolean) js.executeScript(
-                    "return new Promise((resolve) => {" +
-                            "  var selects = document.querySelectorAll('mat-select:not([aria-disabled=\"true\"])');" +
-                            "  console.log('Found ' + selects.length + ' enabled dropdowns');" +
-                            "  if (selects.length === 0) {" +
-                            "    console.log('No mat-select found');" +
-                            "    resolve(false);" +
-                            "    return;" +
-                            "  }" +
-                            "  var newest = selects[selects.length - 1];" +
-                            "  console.log('Targeting newest dropdown (index ' + (selects.length - 1) + ')');" +
-                            "  newest.scrollIntoView({behavior: 'smooth', block: 'center'});" +
-                            "  var trigger = newest.querySelector('.mat-select-trigger');" +
-                            "  if (!trigger) {" +
-                            "    console.log('No trigger found, trying direct click');" +
-                            "    newest.click();" +
-                            "  } else {" +
-                            "    console.log('Trigger found, clicking trigger');" +
-                            "    trigger.click();" +
-                            "  }" +
-                            "  console.log('Dropdown clicked, waiting for options...');" +
-                            "  setTimeout(() => resolve(true), 1500);" +
-                            "});"
-            );
-
-            if (dropdownOpened == null || !dropdownOpened) {
-                LogUtil.error("❌ Failed to open dropdown for " + context);
-                return false;
-            }
-
-            // Step 4: Wait for options to load and select
-            Thread.sleep(3000); // Wait longer for animation
-
-            // Debug the options that are available
-            debugDropdownState(js, context + " AFTER_OPEN");
-
-            Boolean optionSelected = (Boolean) js.executeScript(
-                    "return new Promise((resolve) => {" +
-                            "  var attempts = 0;" +
-                            "  var maxAttempts = 15;" +  // Increased attempts
-                            "  var checkOptions = () => {" +
-                            "    attempts++;" +
-                            "    var options = document.querySelectorAll('mat-option');" +
-                            "    var visibleOptions = Array.from(options).filter(o => " +
-                            "      o.offsetParent !== null && " +
-                            "      !o.classList.contains('mat-option-disabled') && " +
-                            "      o.textContent.trim() !== ''" +
-                            "    );" +
-                            "    console.log('Attempt ' + attempts + ': Found ' + visibleOptions.length + ' visible options');" +
-                            "    " +
-                            "    if (visibleOptions.length > 0) {" +
-                            "      console.log('Available options:');" +
-                            "      for (var j = 0; j < visibleOptions.length; j++) {" +
-                            "        console.log('  ' + j + ': \"' + visibleOptions[j].textContent.trim() + '\"');" +
-                            "      }" +
-                            "      " +
-                            "      // Try to find exact match" +
-                            "      for (var i = 0; i < visibleOptions.length; i++) {" +
-                            "        var optionText = visibleOptions[i].textContent.trim();" +
-                            "        if (optionText.includes(arguments[0])) {" +
-                            "          console.log('Found matching option: ' + optionText);" +
-                            "          visibleOptions[i].click();" +
-                            "          setTimeout(() => {" +
-                            "            document.body.click();" +
-                            "            resolve(true);" +
-                            "          }, 500);" +
-                            "          return;" +
-                            "        }" +
-                            "      }" +
-                            "      " +
-                            "      // If exact match not found, try partial match" +
-                            "      for (var k = 0; k < visibleOptions.length; k++) {" +
-                            "        var optionText = visibleOptions[k].textContent.trim().toUpperCase();" +
-                            "        var searchText = arguments[0].toUpperCase();" +
-                            "        if (optionText.includes(searchText.split(' ')[0])) {" +
-                            "          console.log('Found partial match: ' + optionText);" +
-                            "          visibleOptions[k].click();" +
-                            "          setTimeout(() => {" +
-                            "            document.body.click();" +
-                            "            resolve(true);" +
-                            "          }, 500);" +
-                            "          return;" +
-                            "        }" +
-                            "      }" +
-                            "      " +
-                            "      // Last resort - select first available option" +
-                            "      if (attempts >= maxAttempts - 3) {" +
-                            "        console.log('Using fallback: selecting first available option');" +
-                            "        visibleOptions[0].click();" +
-                            "        setTimeout(() => {" +
-                            "          document.body.click();" +
-                            "          resolve(true);" +
-                            "        }, 500);" +
-                            "        return;" +
-                            "      }" +
-                            "    }" +
-                            "    " +
-                            "    if (attempts < maxAttempts) {" +
-                            "      setTimeout(checkOptions, 500);" +
-                            "    } else {" +
-                            "      console.log('Max attempts reached, no options found');" +
-                            "      resolve(false);" +
-                            "    }" +
-                            "  };" +
-                            "  checkOptions();" +
-                            "});", optionText
-            );
-
-            Thread.sleep(2000); // Wait for selection to complete
-
-            if (optionSelected != null && optionSelected) {
-                LogUtil.info("✅ Successfully selected option for " + context);
-                return true;
-            } else {
-                LogUtil.error("❌ Failed to select option '" + optionText + "' for " + context);
-                // Take a debug screenshot
-                String debugScreenshotPath = ScreenshotUtils.takeScreenshot("Dropdown_Selection_Failed_" + context);
-                return false;
-            }
-
-        } catch (Exception e) {
-            LogUtil.error("❌ Exception in robust dropdown selection for " + context, e);
-            return false;
-        }
-    }
-
-    private void forceCloseAllDropdowns(JavascriptExecutor js) {
-        try {
-            js.executeScript(
-                    "// Close any open dropdowns" +
-                            "document.body.click();" +
-                            "if (document.activeElement) document.activeElement.blur();" +
-                            "document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape'}));" +
-                            "// Hide any visible overlays" +
-                            "var overlays = document.querySelectorAll('.cdk-overlay-pane, .mat-select-panel');" +
-                            "for (var i = 0; i < overlays.length; i++) {" +
-                            "  overlays[i].style.display = 'none';" +
-                            "}"
-            );
-        } catch (Exception e) {
-            LogUtil.error("Error force closing dropdowns", e);
-        }
-    }
-
-    private boolean fillNewestTextInput(JavascriptExecutor js, String value) {
-        try {
-            LogUtil.info("🎯 Filling newest text input with: " + value);
-            Boolean result = (Boolean) js.executeScript(
-                    "var inputs = document.querySelectorAll('input.mat-input-element:not([readonly]):not([disabled]):not([type=\"hidden\"]):not([mask])');" +
-                            "var visibleInputs = [];" +
-                            "for (var i = 0; i < inputs.length; i++) {" +
-                            "  var rect = inputs[i].getBoundingClientRect();" +
-                            "  if (rect.width > 0 && rect.height > 0 && inputs[i].offsetParent !== null && inputs[i].value === '') {" +
-                            "    visibleInputs.push(inputs[i]);" +
-                            "  }" +
-                            "}" +
-                            "if (visibleInputs.length === 0) return false;" +
-                            "var newest = visibleInputs[visibleInputs.length - 1];" +
-                            "newest.focus();" +
-                            "newest.value = arguments[0];" +
-                            "newest.dispatchEvent(new Event('input', {bubbles: true}));" +
-                            "newest.dispatchEvent(new Event('change', {bubbles: true}));" +
-                            "newest.blur();" +
-                            "return true;", value
-            );
             return result != null && result;
         } catch (Exception e) {
-            LogUtil.error("Error filling newest text input", e);
-            return false;
-        }
-    }
-
-    private boolean fillSSNField(JavascriptExecutor js, String ssn) {
-        try {
-            LogUtil.info("🎯 Filling SSN field with: " + ssn);
-            Boolean result = (Boolean) js.executeScript(
-                    "var ssnInputs = document.querySelectorAll('input[mask=\"000-00-0000\"]');" +
-                            "if (ssnInputs.length === 0) {" +
-                            "  // Try alternative SSN patterns" +
-                            "  ssnInputs = document.querySelectorAll('input[maxlength=\"11\"]');" +
-                            "}" +
-                            "if (ssnInputs.length > 0) {" +
-                            "  var newest = ssnInputs[ssnInputs.length - 1];" +
-                            "  newest.focus();" +
-                            "  newest.value = arguments[0];" +
-                            "  newest.dispatchEvent(new Event('input', {bubbles: true}));" +
-                            "  newest.dispatchEvent(new Event('change', {bubbles: true}));" +
-                            "  newest.blur();" +
-                            "  return true;" +
-                            "}" +
-                            "return false;", ssn
-            );
-            return result != null && result;
-        } catch (Exception e) {
-            LogUtil.error("Error filling SSN field", e);
+            LogUtil.error("Error clicking add button: " + buttonText, e);
             return false;
         }
     }
@@ -888,18 +724,26 @@ public class CBPKeywords {
             Thread.sleep(2000);
 
             Boolean result = (Boolean) js.executeScript(
-                    "var inputs = document.querySelectorAll('input[mask=\"0*\"], input[maxlength=\"9\"]');" +
-                            "for (var i = inputs.length - 1; i >= 0; i--) {" +
+                    "var inputs = document.querySelectorAll('input');" +
+                            "var aNumberInputs = [];" +
+                            "for (var i = 0; i < inputs.length; i++) {" +
                             "  var input = inputs[i];" +
-                            "  var rect = input.getBoundingClientRect();" +
-                            "  if (rect.width > 0 && rect.height > 0 && input.value === '') {" +
-                            "    input.focus();" +
-                            "    input.value = arguments[0];" +
-                            "    input.dispatchEvent(new Event('input', {bubbles: true}));" +
-                            "    input.dispatchEvent(new Event('change', {bubbles: true}));" +
-                            "    input.blur();" +
-                            "    return true;" +
+                            "  if ((input.getAttribute('mask') === '0*' && input.getAttribute('maxlength') === '9') ||" +
+                            "      (input.getAttribute('maxlength') === '9' && input.type === 'text')) {" +
+                            "    var rect = input.getBoundingClientRect();" +
+                            "    if (rect.width > 0 && rect.height > 0) {" +
+                            "      aNumberInputs.push(input);" +
+                            "    }" +
                             "  }" +
+                            "}" +
+                            "if (aNumberInputs.length > 0) {" +
+                            "  var newest = aNumberInputs[aNumberInputs.length - 1];" +
+                            "  newest.focus();" +
+                            "  newest.value = arguments[0];" +
+                            "  newest.dispatchEvent(new Event('input', {bubbles: true}));" +
+                            "  newest.dispatchEvent(new Event('change', {bubbles: true}));" +
+                            "  newest.blur();" +
+                            "  return true;" +
                             "}" +
                             "return false;", aNumber
             );
@@ -917,33 +761,5 @@ public class CBPKeywords {
                 .plusDays(minDaysAhead + random.nextInt(maxDaysAhead - minDaysAhead));
         return date.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
     }
-
-    // === DEBUGGING AND LOGGING HELPERS ===
-
-    private void debugDropdownState(JavascriptExecutor js, String context) {
-        try {
-            String debugInfo = (String) js.executeScript(
-                    "var info = [];" +
-                            "info.push('=== DROPDOWN DEBUG for " + context + " ===');" +
-                            "var selects = document.querySelectorAll('mat-select');" +
-                            "info.push('Total mat-selects found: ' + selects.length);" +
-                            "var enabledSelects = document.querySelectorAll('mat-select:not([aria-disabled=\"true\"])');" +
-                            "info.push('Enabled mat-selects: ' + enabledSelects.length);" +
-                            "var options = document.querySelectorAll('mat-option');" +
-                            "info.push('Total mat-options visible: ' + options.length);" +
-                            "var visibleOptions = Array.from(options).filter(o => o.offsetParent !== null);" +
-                            "info.push('Actually visible options: ' + visibleOptions.length);" +
-                            "if (visibleOptions.length > 0) {" +
-                            "  info.push('First 3 options:');" +
-                            "  for (var i = 0; i < Math.min(3, visibleOptions.length); i++) {" +
-                            "    info.push('  ' + i + ': ' + visibleOptions[i].textContent.trim());" +
-                            "  }" +
-                            "}" +
-                            "return info.join('\\n');"
-            );
-            LogUtil.info("DROPDOWN DEBUG:\n" + debugInfo);
-        } catch (Exception e) {
-            LogUtil.error("Error in dropdown debugging", e);
-        }
-    }
+}
 }
