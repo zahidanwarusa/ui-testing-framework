@@ -825,16 +825,42 @@ public class CBPKeywords {
 
     private String submitFormAndCaptureTECSID(JavascriptExecutor js, TestContext context) {
         try {
-            LogUtil.info("Attempting to submit form and capture TECS ID");
+            LogUtil.info("🔄 STARTING FORM SUBMISSION PROCESS");
+            ReportManager.logInfo(context.getTestId(), context.getTestName(), "Starting form submission and TECS ID capture");
 
-            // First, try to find and click submit button
+            // Step 1: Find and click submit button
+            LogUtil.info("Step 1: Looking for SUBMIT button");
+            Boolean submitFound = (Boolean) js.executeScript(
+                    "var submitButtons = document.querySelectorAll('button');" +
+                            "var found = false;" +
+                            "for (var i = 0; i < submitButtons.length; i++) {" +
+                            "  var buttonText = submitButtons[i].textContent.toLowerCase();" +
+                            "  if (buttonText.includes('submit') && !submitButtons[i].disabled) {" +
+                            "    console.log('Found submit button: ' + submitButtons[i].textContent);" +
+                            "    found = true;" +
+                            "    break;" +
+                            "  }" +
+                            "}" +
+                            "return found;"
+            );
+
+            if (!submitFound) {
+                LogUtil.error("❌ Submit button not found!");
+                ReportManager.logFail(context.getTestId(), context.getTestName(), "Submit button not found");
+                return null;
+            }
+
+            LogUtil.info("✅ Submit button found, clicking now...");
             Boolean submitClicked = (Boolean) js.executeScript(
                     "var submitButtons = document.querySelectorAll('button');" +
                             "for (var i = 0; i < submitButtons.length; i++) {" +
                             "  var buttonText = submitButtons[i].textContent.toLowerCase();" +
                             "  if (buttonText.includes('submit') && !submitButtons[i].disabled) {" +
                             "    submitButtons[i].scrollIntoView({behavior: 'smooth', block: 'center'});" +
-                            "    submitButtons[i].click();" +
+                            "    setTimeout(() => {" +
+                            "      submitButtons[i].click();" +
+                            "      console.log('Submit button clicked!');" +
+                            "    }, 1000);" +
                             "    return true;" +
                             "  }" +
                             "}" +
@@ -842,26 +868,32 @@ public class CBPKeywords {
             );
 
             if (!submitClicked) {
-                LogUtil.warn("Submit button not found or not clickable");
+                LogUtil.error("❌ Failed to click submit button");
                 return null;
             }
 
-            LogUtil.info("Submit button clicked, waiting for TECS ID to appear");
+            LogUtil.info("✅ Submit button clicked successfully!");
+            ReportManager.logInfo(context.getTestId(), context.getTestName(), "Submit button clicked - waiting for TECS ID");
 
-            // Wait for submission to process and TECS ID to appear
-            Thread.sleep(8000);
+            // Step 2: Wait for submission to process
+            LogUtil.info("Step 2: Waiting for form submission to process...");
+            Thread.sleep(10000); // Wait 10 seconds for submission
 
-            // Try multiple strategies to find TECS ID
+            // Step 3: Search for TECS ID using multiple strategies
+            LogUtil.info("Step 3: Searching for TECS ID on submission page");
             String tecsId = null;
 
             // Strategy 1: Look for "TECS ID:" pattern
+            LogUtil.info("Strategy 1: Looking for 'TECS ID:' pattern");
             tecsId = (String) js.executeScript(
                     "var allElements = document.querySelectorAll('*');" +
                             "for (var i = 0; i < allElements.length; i++) {" +
                             "  var text = allElements[i].textContent || allElements[i].innerText;" +
                             "  if (text && text.includes('TECS ID:')) {" +
+                            "    console.log('Found TECS ID text: ' + text);" +
                             "    var matches = text.match(/TECS ID:\\s*([A-Z0-9]+)/i);" +
                             "    if (matches && matches[1]) {" +
+                            "      console.log('Extracted TECS ID: ' + matches[1]);" +
                             "      return matches[1];" +
                             "    }" +
                             "  }" +
@@ -870,7 +902,7 @@ public class CBPKeywords {
             );
 
             if (tecsId == null) {
-                // Strategy 2: Look for pattern like "XYZ121312" (letters + numbers)
+                LogUtil.info("Strategy 2: Looking for alphanumeric pattern (e.g., XYZ121312)");
                 tecsId = (String) js.executeScript(
                         "var allElements = document.querySelectorAll('*');" +
                                 "for (var i = 0; i < allElements.length; i++) {" +
@@ -878,6 +910,7 @@ public class CBPKeywords {
                                 "  if (text) {" +
                                 "    var matches = text.match(/[A-Z]{2,}[0-9]{5,}/g);" +
                                 "    if (matches && matches.length > 0) {" +
+                                "      console.log('Found pattern match: ' + matches[0]);" +
                                 "      return matches[0];" +
                                 "    }" +
                                 "  }" +
@@ -887,14 +920,15 @@ public class CBPKeywords {
             }
 
             if (tecsId == null) {
-                // Strategy 3: Look for any success message containing alphanumeric ID
+                LogUtil.info("Strategy 3: Looking in success messages");
                 tecsId = (String) js.executeScript(
-                        "var successElements = document.querySelectorAll('.success, .alert-success, .notification, .message');" +
+                        "var successElements = document.querySelectorAll('.success, .alert-success, .notification, .message, .confirmation');" +
                                 "for (var i = 0; i < successElements.length; i++) {" +
                                 "  var text = successElements[i].textContent || successElements[i].innerText;" +
                                 "  if (text) {" +
                                 "    var matches = text.match(/[A-Z0-9]{6,}/g);" +
                                 "    if (matches && matches.length > 0) {" +
+                                "      console.log('Found in success message: ' + matches[0]);" +
                                 "      return matches[0];" +
                                 "    }" +
                                 "  }" +
@@ -903,40 +937,73 @@ public class CBPKeywords {
                 );
             }
 
-            if (tecsId != null) {
-                LogUtil.info("TECS ID captured successfully: " + tecsId);
+            if (tecsId == null) {
+                LogUtil.info("Strategy 4: Searching entire page for any ID-like pattern");
+                tecsId = (String) js.executeScript(
+                        "var pageText = document.body.textContent;" +
+                                "var matches = pageText.match(/[A-Z]{2,}[0-9]{4,}/g);" +
+                                "if (matches && matches.length > 0) {" +
+                                "  console.log('Found generic pattern: ' + matches[0]);" +
+                                "  return matches[0];" +
+                                "}" +
+                                "return null;"
+                );
+            }
 
-                // Take additional screenshot highlighting the TECS ID
+            // Step 4: Process results
+            if (tecsId != null && tecsId.length() >= 6) {
+                LogUtil.info("🎉 TECS ID FOUND: " + tecsId);
+                ReportManager.logPass(context.getTestId(), context.getTestName(), "TECS ID captured: " + tecsId);
+
+                // Step 5: Highlight the TECS ID on the page
+                LogUtil.info("Step 5: Highlighting TECS ID on page");
                 String highlightResult = (String) js.executeScript(
                         "var allElements = document.querySelectorAll('*');" +
+                                "var highlighted = false;" +
                                 "for (var i = 0; i < allElements.length; i++) {" +
                                 "  var text = allElements[i].textContent || allElements[i].innerText;" +
                                 "  if (text && text.includes(arguments[0])) {" +
                                 "    allElements[i].style.backgroundColor = 'yellow';" +
-                                "    allElements[i].style.border = '2px solid red';" +
+                                "    allElements[i].style.border = '3px solid red';" +
+                                "    allElements[i].style.padding = '10px';" +
+                                "    allElements[i].style.fontSize = '18px';" +
+                                "    allElements[i].style.fontWeight = 'bold';" +
                                 "    allElements[i].scrollIntoView({behavior: 'smooth', block: 'center'});" +
-                                "    return 'highlighted';" +
+                                "    highlighted = true;" +
+                                "    console.log('TECS ID highlighted successfully');" +
+                                "    break;" +
                                 "  }" +
                                 "}" +
-                                "return 'not_found';", tecsId
+                                "return highlighted ? 'highlighted' : 'not_highlighted';", tecsId
                 );
 
-                Thread.sleep(2000); // Wait for highlight to be visible
-                LogUtil.info("TECS ID highlighted on page: " + highlightResult);
+                Thread.sleep(3000); // Wait for highlight to be visible
+                LogUtil.info("TECS ID highlight result: " + highlightResult);
+
+                return tecsId;
             } else {
-                LogUtil.warn("TECS ID not found using any strategy");
+                LogUtil.error("❌ TECS ID not found on submission page");
 
                 // Log current page content for debugging
                 String pageContent = (String) js.executeScript(
-                        "return document.body.textContent.substring(0, 1000);"
+                        "return document.body.textContent.substring(0, 2000);"
                 );
-                LogUtil.info("Current page content (first 1000 chars): " + pageContent);
+                LogUtil.error("Current page content (first 2000 chars): " + pageContent);
+
+                // Take screenshot for debugging
+                String debugScreenshotPath = ScreenshotUtils.takeScreenshot("No_TECS_ID_Debug_Page");
+                if (debugScreenshotPath != null) {
+                    ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
+                            debugScreenshotPath, "Debug: Page After Submission - No TECS ID Found");
+                }
+
+                return null;
             }
 
-            return tecsId;
-
         } catch (Exception e) {
-            LogUtil.error("Error submitting form and capturing TECS ID", e);
+            LogUtil.error("❌ Exception during form submission and TECS ID capture", e);
+            ReportManager.logFail(context.getTestId(), context.getTestName(),
+                    "Exception during form submission: " + e.getMessage());
             return null;
         }
     }
