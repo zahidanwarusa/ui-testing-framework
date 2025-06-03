@@ -1,9 +1,7 @@
-package com.umr.core.keyword;
+package com.umr.core;
 
-import com.umr.core.DriverManager;
-import com.umr.core.KeywordExecutor;
-import com.umr.core.TestContext;
 import com.umr.core.keyword.CBPKeywords;
+import com.umr.reporting.EmailReporter;
 import com.umr.reporting.ReportManager;
 import com.umr.utils.ExcelReader;
 import com.umr.utils.LogUtil;
@@ -14,12 +12,18 @@ import java.util.Map;
 
 /**
  * Test runner specifically for CBP (Customs and Border Protection) automation tests.
- * Uses CBPKeywords for test execution.
+ * Uses CBPKeywords for test execution and includes email reporting functionality.
  */
 public class CBPTestRunner {
 
+    private static EmailReporter emailReporter;
+
     public static void main(String[] args) {
         LogUtil.info("Starting CBP Test Execution");
+        long startTime = System.currentTimeMillis();
+        
+        // Initialize email reporter
+        emailReporter = new EmailReporter();
 
         try {
             // Initialize reporting
@@ -50,10 +54,21 @@ public class CBPTestRunner {
 
             // Finalize the report
             ReportManager.finalizeReport();
+            
+            // Calculate execution time
+            long endTime = System.currentTimeMillis();
+            long executionTime = (endTime - startTime) / 1000; // in seconds
+            
+            // Send email report
+            sendEmailReport(executionTime);
+
         } catch (Exception e) {
             LogUtil.error("Error during CBP test execution", e);
             // Make sure to finalize report even if there's an exception
             ReportManager.finalizeReport();
+            
+            // Send email report even on failure
+            sendEmailReport(0);
         }
     }
 
@@ -61,12 +76,19 @@ public class CBPTestRunner {
         String testId = test.get("TestID");
         String testName = test.get("TestName");
         String description = test.get("Description");
+        String jiraTicket = test.get("JiraTicket"); // Get JIRA ticket from Excel
+        
+        long testStartTime = System.currentTimeMillis();
 
         LogUtil.startTest(testId, testName);
         TestContext context = new TestContext(testId, testName);
 
         // Create test in report
         ReportManager.createTest(testId, testName, description != null ? description : testName);
+
+        String testStatus = "UNKNOWN";
+        String failureReason = null;
+        String tecsId = null;
 
         try {
             // Load test data
@@ -87,6 +109,8 @@ public class CBPTestRunner {
                 ReportManager.logFail(testId, testName, "No keywords found for test ID: " + testId);
                 LogUtil.endTest(testId, testName, "FAIL");
                 ReportManager.markTestAsFailed(testId, testName, "No keywords found for test ID: " + testId);
+                testStatus = "FAILED";
+                failureReason = "No keywords found for test ID: " + testId;
                 return;
             }
 
@@ -107,7 +131,7 @@ public class CBPTestRunner {
                     ReportManager.logPass(testId, testName, "Keyword executed successfully: " + keyword);
                 } else {
                     LogUtil.error("Test failed during keyword: " + keyword);
-                    String failureReason = context.getFailureReason();
+                    failureReason = context.getFailureReason();
                     ReportManager.logFail(testId, testName, "Keyword failed: " + keyword +
                             (failureReason != null ? " - Reason: " + failureReason : ""));
 
@@ -120,24 +144,89 @@ public class CBPTestRunner {
                 }
             }
 
+            // Get TECS ID if available
+            tecsId = context.getFromContextAsString("TECS_ID");
+
             // Log test result
-            String result = context.isTestPassed() ? "PASS" : "FAIL";
-            LogUtil.endTest(testId, testName, result);
+            testStatus = context.isTestPassed() ? "PASSED" : "FAILED";
+            LogUtil.endTest(testId, testName, testStatus);
 
             if (context.isTestPassed()) {
                 ReportManager.markTestAsPassed(testId, testName, "CBP test executed successfully");
             } else {
                 ReportManager.markTestAsFailed(testId, testName, "CBP test failed: " + context.getFailureReason());
+                if (failureReason == null) {
+                    failureReason = context.getFailureReason();
+                }
             }
 
         } catch (Exception e) {
             LogUtil.error("Error executing CBP test: " + testName, e);
-            LogUtil.endTest(testId, testName, "FAIL");
+            LogUtil.endTest(testId, testName, "FAILED");
             ReportManager.logFail(testId, testName, "Exception during CBP test execution: " + e.getMessage());
             ReportManager.markTestAsFailed(testId, testName, "Exception: " + e.getMessage());
+            testStatus = "FAILED";
+            failureReason = "Exception: " + e.getMessage();
         } finally {
+            // Calculate test duration
+            long testEndTime = System.currentTimeMillis();
+            long testDuration = (testEndTime - testStartTime) / 1000; // in seconds
+            String durationString = formatDuration(testDuration);
+            
+            // Add test result to email reporter
+            emailReporter.addTestResult(testId, testName, testStatus, durationString, jiraTicket, tecsId, failureReason);
+            
             // Clean up resources
             context.cleanup();
+        }
+    }
+    
+    private static void sendEmailReport(long executionTimeSeconds) {
+        try {
+            LogUtil.info("Preparing to send email report");
+            
+            // Create custom subject
+            String customSubject = String.format("CBP Automation Results - %d/%d Passed (%s) - %s", 
+                emailReporter.getPassedTests(), 
+                emailReporter.getTotalTests(),
+                emailReporter.getFailedTests() > 0 ? "FAILURES DETECTED" : "ALL PASSED",
+                new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(new java.util.Date()));
+            
+            // Create custom header
+            String customHeader = String.format(
+                "🚨 CBP Test Automation Execution Summary<br>" +
+                "📅 Execution Date: %s<br>" +
+                "⏱️ Total Execution Time: %s<br>" +
+                "🎯 Test Environment: CBP UAT Environment",
+                new java.text.SimpleDateFormat("EEEE, MMMM dd, yyyy 'at' HH:mm:ss").format(new java.util.Date()),
+                formatDuration(executionTimeSeconds)
+            );
+            
+            // Send email report
+            boolean emailSent = emailReporter.sendEmailReport(customSubject, customHeader);
+            
+            if (emailSent) {
+                LogUtil.info("Email report sent successfully");
+            } else {
+                LogUtil.warn("Failed to send email report");
+            }
+            
+        } catch (Exception e) {
+            LogUtil.error("Error sending email report", e);
+        }
+    }
+    
+    private static String formatDuration(long seconds) {
+        if (seconds < 60) {
+            return seconds + " seconds";
+        } else if (seconds < 3600) {
+            long minutes = seconds / 60;
+            long remainingSeconds = seconds % 60;
+            return minutes + " minutes " + remainingSeconds + " seconds";
+        } else {
+            long hours = seconds / 3600;
+            long remainingMinutes = (seconds % 3600) / 60;
+            return hours + " hours " + remainingMinutes + " minutes";
         }
     }
 }

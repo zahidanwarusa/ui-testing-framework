@@ -823,6 +823,124 @@ public class CBPKeywords {
         return date.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
     }
 
+    private String submitFormAndCaptureTECSID(JavascriptExecutor js, TestContext context) {
+        try {
+            LogUtil.info("Attempting to submit form and capture TECS ID");
+
+            // First, try to find and click submit button
+            Boolean submitClicked = (Boolean) js.executeScript(
+                    "var submitButtons = document.querySelectorAll('button');" +
+                            "for (var i = 0; i < submitButtons.length; i++) {" +
+                            "  var buttonText = submitButtons[i].textContent.toLowerCase();" +
+                            "  if (buttonText.includes('submit') && !submitButtons[i].disabled) {" +
+                            "    submitButtons[i].scrollIntoView({behavior: 'smooth', block: 'center'});" +
+                            "    submitButtons[i].click();" +
+                            "    return true;" +
+                            "  }" +
+                            "}" +
+                            "return false;"
+            );
+
+            if (!submitClicked) {
+                LogUtil.warn("Submit button not found or not clickable");
+                return null;
+            }
+
+            LogUtil.info("Submit button clicked, waiting for TECS ID to appear");
+
+            // Wait for submission to process and TECS ID to appear
+            Thread.sleep(8000);
+
+            // Try multiple strategies to find TECS ID
+            String tecsId = null;
+
+            // Strategy 1: Look for "TECS ID:" pattern
+            tecsId = (String) js.executeScript(
+                    "var allElements = document.querySelectorAll('*');" +
+                            "for (var i = 0; i < allElements.length; i++) {" +
+                            "  var text = allElements[i].textContent || allElements[i].innerText;" +
+                            "  if (text && text.includes('TECS ID:')) {" +
+                            "    var matches = text.match(/TECS ID:\\s*([A-Z0-9]+)/i);" +
+                            "    if (matches && matches[1]) {" +
+                            "      return matches[1];" +
+                            "    }" +
+                            "  }" +
+                            "}" +
+                            "return null;"
+            );
+
+            if (tecsId == null) {
+                // Strategy 2: Look for pattern like "XYZ121312" (letters + numbers)
+                tecsId = (String) js.executeScript(
+                        "var allElements = document.querySelectorAll('*');" +
+                                "for (var i = 0; i < allElements.length; i++) {" +
+                                "  var text = allElements[i].textContent || allElements[i].innerText;" +
+                                "  if (text) {" +
+                                "    var matches = text.match(/[A-Z]{2,}[0-9]{5,}/g);" +
+                                "    if (matches && matches.length > 0) {" +
+                                "      return matches[0];" +
+                                "    }" +
+                                "  }" +
+                                "}" +
+                                "return null;"
+                );
+            }
+
+            if (tecsId == null) {
+                // Strategy 3: Look for any success message containing alphanumeric ID
+                tecsId = (String) js.executeScript(
+                        "var successElements = document.querySelectorAll('.success, .alert-success, .notification, .message');" +
+                                "for (var i = 0; i < successElements.length; i++) {" +
+                                "  var text = successElements[i].textContent || successElements[i].innerText;" +
+                                "  if (text) {" +
+                                "    var matches = text.match(/[A-Z0-9]{6,}/g);" +
+                                "    if (matches && matches.length > 0) {" +
+                                "      return matches[0];" +
+                                "    }" +
+                                "  }" +
+                                "}" +
+                                "return null;"
+                );
+            }
+
+            if (tecsId != null) {
+                LogUtil.info("TECS ID captured successfully: " + tecsId);
+
+                // Take additional screenshot highlighting the TECS ID
+                String highlightResult = (String) js.executeScript(
+                        "var allElements = document.querySelectorAll('*');" +
+                                "for (var i = 0; i < allElements.length; i++) {" +
+                                "  var text = allElements[i].textContent || allElements[i].innerText;" +
+                                "  if (text && text.includes(arguments[0])) {" +
+                                "    allElements[i].style.backgroundColor = 'yellow';" +
+                                "    allElements[i].style.border = '2px solid red';" +
+                                "    allElements[i].scrollIntoView({behavior: 'smooth', block: 'center'});" +
+                                "    return 'highlighted';" +
+                                "  }" +
+                                "}" +
+                                "return 'not_found';", tecsId
+                );
+
+                Thread.sleep(2000); // Wait for highlight to be visible
+                LogUtil.info("TECS ID highlighted on page: " + highlightResult);
+            } else {
+                LogUtil.warn("TECS ID not found using any strategy");
+
+                // Log current page content for debugging
+                String pageContent = (String) js.executeScript(
+                        "return document.body.textContent.substring(0, 1000);"
+                );
+                LogUtil.info("Current page content (first 1000 chars): " + pageContent);
+            }
+
+            return tecsId;
+
+        } catch (Exception e) {
+            LogUtil.error("Error submitting form and capturing TECS ID", e);
+            return null;
+        }
+    }
+
     private boolean fillDriversLicense(JavascriptExecutor js) {
         try {
             LogUtil.info("Filling Driver's License information");
