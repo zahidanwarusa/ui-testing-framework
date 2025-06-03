@@ -209,34 +209,83 @@ public class CBPKeywords {
             String formScreenshotPath = ScreenshotUtils.takeScreenshot("1Day_Lookout_Form_Opened");
             if (formScreenshotPath != null) {
                 ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
-                        formScreenshotPath, "1-Day Lookout Form");
+                        formScreenshotPath, "1-Day Lookout Form Opened");
             }
 
             // Step 7: Fill the 1-Day Lookout form
             LogUtil.info("Starting to fill 1-Day Lookout form");
             boolean formFilled = fill1DayLookoutForm(driver, js, wait, context);
 
-            if (formFilled) {
-                LogUtil.info("Successfully filled 1-Day Lookout form");
-                ReportManager.logPass(context.getTestId(), context.getTestName(),
-                        "Successfully created and filled 1-Day Lookout");
-                return true;
-            } else {
+            if (!formFilled) {
                 LogUtil.error("Failed to fill 1-Day Lookout form");
                 context.setTestFailed("Failed to fill 1-Day Lookout form");
                 return false;
             }
 
+            // Step 8: Submit the form and capture TECS ID
+            LogUtil.info("=== SUBMITTING FORM AND CAPTURING TECS ID ===");
+            ReportManager.logInfo(context.getTestId(), context.getTestName(), "Submitting 1-Day Lookout form");
+
+            String tecsId = submitFormAndCaptureTECSID(js, context);
+
+            if (tecsId != null && !tecsId.isEmpty()) {
+                LogUtil.info("🎯 SUCCESS: TECS ID captured successfully: " + tecsId);
+                ReportManager.logPass(context.getTestId(), context.getTestName(),
+                        "✅ Form submitted successfully! TECS ID Generated: " + tecsId);
+
+                // Add TECS ID to test context for later use
+                context.addToContext("TECS_ID", tecsId);
+                context.addTestData("GeneratedTECSID", tecsId);
+
+                // Take screenshot with TECS ID visible and highlighted
+                String tecsScreenshotPath = ScreenshotUtils.takeScreenshot("TECS_ID_Generated_" + tecsId.replaceAll("[^a-zA-Z0-9]", "_"));
+                if (tecsScreenshotPath != null) {
+                    ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
+                            tecsScreenshotPath, "🎯 TECS ID Generated: " + tecsId);
+                }
+
+                // Log TECS ID in multiple places for visibility
+                LogUtil.info("=".repeat(60));
+                LogUtil.info("🎯 TECS ID SUCCESSFULLY CAPTURED: " + tecsId);
+                LogUtil.info("=".repeat(60));
+
+            } else {
+                LogUtil.warn("⚠️ Could not capture TECS ID, but form may have been submitted");
+                ReportManager.logWarning(context.getTestId(), context.getTestName(),
+                        "⚠️ Form submitted but TECS ID could not be captured - please check manually");
+
+                // Take screenshot anyway to show current page state
+                String submitScreenshotPath = ScreenshotUtils.takeScreenshot("Form_Submitted_No_TECS_ID");
+                if (submitScreenshotPath != null) {
+                    ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
+                            submitScreenshotPath, "Form Submitted - TECS ID Not Captured");
+                }
+            }
+
+            // Step 9: Take final comprehensive screenshot
+            String finalScreenshotPath = ScreenshotUtils.takeScreenshot("1Day_Lookout_Process_Complete");
+            if (finalScreenshotPath != null) {
+                ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
+                        finalScreenshotPath, "1-Day Lookout Process Complete");
+            }
+
+            LogUtil.info("✅ 1-Day Lookout creation and submission completed successfully");
+            ReportManager.logPass(context.getTestId(), context.getTestName(),
+                    "✅ 1-Day Lookout process completed successfully" +
+                            (tecsId != null ? " with TECS ID: " + tecsId : ""));
+
+            return true;
+
         } catch (Exception e) {
-            LogUtil.error("Failed to create and fill 1-day lookout", e);
+            LogUtil.error("❌ Failed to create and fill 1-day lookout", e);
             context.setTestFailed("Failed to create and fill 1-day lookout: " + e.getMessage());
             ReportManager.logFail(context.getTestId(), context.getTestName(),
-                    "Failed to create and fill 1-day lookout: " + e.getMessage());
+                    "❌ Failed to create and fill 1-day lookout: " + e.getMessage());
 
             String failureScreenshotPath = ScreenshotUtils.takeScreenshot("1Day_Lookout_Failed");
             if (failureScreenshotPath != null) {
                 ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
-                        failureScreenshotPath, "1-Day Lookout Failure");
+                        failureScreenshotPath, "1-Day Lookout Process Failed");
             }
 
             return false;
@@ -825,42 +874,16 @@ public class CBPKeywords {
 
     private String submitFormAndCaptureTECSID(JavascriptExecutor js, TestContext context) {
         try {
-            LogUtil.info("🔄 STARTING FORM SUBMISSION PROCESS");
-            ReportManager.logInfo(context.getTestId(), context.getTestName(), "Starting form submission and TECS ID capture");
+            LogUtil.info("Attempting to submit form and capture TECS ID");
 
-            // Step 1: Find and click submit button
-            LogUtil.info("Step 1: Looking for SUBMIT button");
-            Boolean submitFound = (Boolean) js.executeScript(
-                    "var submitButtons = document.querySelectorAll('button');" +
-                            "var found = false;" +
-                            "for (var i = 0; i < submitButtons.length; i++) {" +
-                            "  var buttonText = submitButtons[i].textContent.toLowerCase();" +
-                            "  if (buttonText.includes('submit') && !submitButtons[i].disabled) {" +
-                            "    console.log('Found submit button: ' + submitButtons[i].textContent);" +
-                            "    found = true;" +
-                            "    break;" +
-                            "  }" +
-                            "}" +
-                            "return found;"
-            );
-
-            if (!submitFound) {
-                LogUtil.error("❌ Submit button not found!");
-                ReportManager.logFail(context.getTestId(), context.getTestName(), "Submit button not found");
-                return null;
-            }
-
-            LogUtil.info("✅ Submit button found, clicking now...");
+            // First, try to find and click submit button
             Boolean submitClicked = (Boolean) js.executeScript(
                     "var submitButtons = document.querySelectorAll('button');" +
                             "for (var i = 0; i < submitButtons.length; i++) {" +
                             "  var buttonText = submitButtons[i].textContent.toLowerCase();" +
                             "  if (buttonText.includes('submit') && !submitButtons[i].disabled) {" +
                             "    submitButtons[i].scrollIntoView({behavior: 'smooth', block: 'center'});" +
-                            "    setTimeout(() => {" +
-                            "      submitButtons[i].click();" +
-                            "      console.log('Submit button clicked!');" +
-                            "    }, 1000);" +
+                            "    submitButtons[i].click();" +
                             "    return true;" +
                             "  }" +
                             "}" +
@@ -868,32 +891,26 @@ public class CBPKeywords {
             );
 
             if (!submitClicked) {
-                LogUtil.error("❌ Failed to click submit button");
+                LogUtil.warn("Submit button not found or not clickable");
                 return null;
             }
 
-            LogUtil.info("✅ Submit button clicked successfully!");
-            ReportManager.logInfo(context.getTestId(), context.getTestName(), "Submit button clicked - waiting for TECS ID");
+            LogUtil.info("Submit button clicked, waiting for TECS ID to appear");
 
-            // Step 2: Wait for submission to process
-            LogUtil.info("Step 2: Waiting for form submission to process...");
-            Thread.sleep(10000); // Wait 10 seconds for submission
+            // Wait for submission to process and TECS ID to appear
+            Thread.sleep(8000);
 
-            // Step 3: Search for TECS ID using multiple strategies
-            LogUtil.info("Step 3: Searching for TECS ID on submission page");
+            // Try multiple strategies to find TECS ID
             String tecsId = null;
 
             // Strategy 1: Look for "TECS ID:" pattern
-            LogUtil.info("Strategy 1: Looking for 'TECS ID:' pattern");
             tecsId = (String) js.executeScript(
                     "var allElements = document.querySelectorAll('*');" +
                             "for (var i = 0; i < allElements.length; i++) {" +
                             "  var text = allElements[i].textContent || allElements[i].innerText;" +
                             "  if (text && text.includes('TECS ID:')) {" +
-                            "    console.log('Found TECS ID text: ' + text);" +
                             "    var matches = text.match(/TECS ID:\\s*([A-Z0-9]+)/i);" +
                             "    if (matches && matches[1]) {" +
-                            "      console.log('Extracted TECS ID: ' + matches[1]);" +
                             "      return matches[1];" +
                             "    }" +
                             "  }" +
@@ -902,7 +919,7 @@ public class CBPKeywords {
             );
 
             if (tecsId == null) {
-                LogUtil.info("Strategy 2: Looking for alphanumeric pattern (e.g., XYZ121312)");
+                // Strategy 2: Look for pattern like "XYZ121312" (letters + numbers)
                 tecsId = (String) js.executeScript(
                         "var allElements = document.querySelectorAll('*');" +
                                 "for (var i = 0; i < allElements.length; i++) {" +
@@ -910,7 +927,6 @@ public class CBPKeywords {
                                 "  if (text) {" +
                                 "    var matches = text.match(/[A-Z]{2,}[0-9]{5,}/g);" +
                                 "    if (matches && matches.length > 0) {" +
-                                "      console.log('Found pattern match: ' + matches[0]);" +
                                 "      return matches[0];" +
                                 "    }" +
                                 "  }" +
@@ -920,15 +936,14 @@ public class CBPKeywords {
             }
 
             if (tecsId == null) {
-                LogUtil.info("Strategy 3: Looking in success messages");
+                // Strategy 3: Look for any success message containing alphanumeric ID
                 tecsId = (String) js.executeScript(
-                        "var successElements = document.querySelectorAll('.success, .alert-success, .notification, .message, .confirmation');" +
+                        "var successElements = document.querySelectorAll('.success, .alert-success, .notification, .message');" +
                                 "for (var i = 0; i < successElements.length; i++) {" +
                                 "  var text = successElements[i].textContent || successElements[i].innerText;" +
                                 "  if (text) {" +
                                 "    var matches = text.match(/[A-Z0-9]{6,}/g);" +
                                 "    if (matches && matches.length > 0) {" +
-                                "      console.log('Found in success message: ' + matches[0]);" +
                                 "      return matches[0];" +
                                 "    }" +
                                 "  }" +
@@ -937,73 +952,40 @@ public class CBPKeywords {
                 );
             }
 
-            if (tecsId == null) {
-                LogUtil.info("Strategy 4: Searching entire page for any ID-like pattern");
-                tecsId = (String) js.executeScript(
-                        "var pageText = document.body.textContent;" +
-                                "var matches = pageText.match(/[A-Z]{2,}[0-9]{4,}/g);" +
-                                "if (matches && matches.length > 0) {" +
-                                "  console.log('Found generic pattern: ' + matches[0]);" +
-                                "  return matches[0];" +
-                                "}" +
-                                "return null;"
-                );
-            }
+            if (tecsId != null) {
+                LogUtil.info("TECS ID captured successfully: " + tecsId);
 
-            // Step 4: Process results
-            if (tecsId != null && tecsId.length() >= 6) {
-                LogUtil.info("🎉 TECS ID FOUND: " + tecsId);
-                ReportManager.logPass(context.getTestId(), context.getTestName(), "TECS ID captured: " + tecsId);
-
-                // Step 5: Highlight the TECS ID on the page
-                LogUtil.info("Step 5: Highlighting TECS ID on page");
+                // Take additional screenshot highlighting the TECS ID
                 String highlightResult = (String) js.executeScript(
                         "var allElements = document.querySelectorAll('*');" +
-                                "var highlighted = false;" +
                                 "for (var i = 0; i < allElements.length; i++) {" +
                                 "  var text = allElements[i].textContent || allElements[i].innerText;" +
                                 "  if (text && text.includes(arguments[0])) {" +
                                 "    allElements[i].style.backgroundColor = 'yellow';" +
-                                "    allElements[i].style.border = '3px solid red';" +
-                                "    allElements[i].style.padding = '10px';" +
-                                "    allElements[i].style.fontSize = '18px';" +
-                                "    allElements[i].style.fontWeight = 'bold';" +
+                                "    allElements[i].style.border = '2px solid red';" +
                                 "    allElements[i].scrollIntoView({behavior: 'smooth', block: 'center'});" +
-                                "    highlighted = true;" +
-                                "    console.log('TECS ID highlighted successfully');" +
-                                "    break;" +
+                                "    return 'highlighted';" +
                                 "  }" +
                                 "}" +
-                                "return highlighted ? 'highlighted' : 'not_highlighted';", tecsId
+                                "return 'not_found';", tecsId
                 );
 
-                Thread.sleep(3000); // Wait for highlight to be visible
-                LogUtil.info("TECS ID highlight result: " + highlightResult);
-
-                return tecsId;
+                Thread.sleep(2000); // Wait for highlight to be visible
+                LogUtil.info("TECS ID highlighted on page: " + highlightResult);
             } else {
-                LogUtil.error("❌ TECS ID not found on submission page");
+                LogUtil.warn("TECS ID not found using any strategy");
 
                 // Log current page content for debugging
                 String pageContent = (String) js.executeScript(
-                        "return document.body.textContent.substring(0, 2000);"
+                        "return document.body.textContent.substring(0, 1000);"
                 );
-                LogUtil.error("Current page content (first 2000 chars): " + pageContent);
-
-                // Take screenshot for debugging
-                String debugScreenshotPath = ScreenshotUtils.takeScreenshot("No_TECS_ID_Debug_Page");
-                if (debugScreenshotPath != null) {
-                    ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
-                            debugScreenshotPath, "Debug: Page After Submission - No TECS ID Found");
-                }
-
-                return null;
+                LogUtil.info("Current page content (first 1000 chars): " + pageContent);
             }
 
+            return tecsId;
+
         } catch (Exception e) {
-            LogUtil.error("❌ Exception during form submission and TECS ID capture", e);
-            ReportManager.logFail(context.getTestId(), context.getTestName(),
-                    "Exception during form submission: " + e.getMessage());
+            LogUtil.error("Error submitting form and capturing TECS ID", e);
             return null;
         }
     }
