@@ -375,6 +375,7 @@ public class CBPKeywords {
         }
     }
 
+
     @Keyword("SEARCH_PERSON")
     public boolean searchPerson(TestContext context) {
         LogUtil.info("Executing SEARCH_PERSON keyword");
@@ -433,15 +434,12 @@ public class CBPKeywords {
                     "var dobInput = document.querySelector('#dob');" +
                             "if (dobInput) {" +
                             "  dobInput.focus();" +
-                            "  // Clear the field first" +
                             "  dobInput.value = '';" +
                             "  dobInput.dispatchEvent(new Event('input', {bubbles: true}));" +
-                            "  // For date range field, we can try just the single date first" +
                             "  dobInput.value = arguments[0];" +
                             "  dobInput.dispatchEvent(new Event('input', {bubbles: true}));" +
                             "  dobInput.dispatchEvent(new Event('change', {bubbles: true}));" +
                             "  dobInput.dispatchEvent(new Event('blur', {bubbles: true}));" +
-                            "  // If that doesn't work, try with dash for range format" +
                             "  if (dobInput.value === '' || dobInput.value !== arguments[0]) {" +
                             "    dobInput.value = arguments[0] + '-';" +
                             "    dobInput.dispatchEvent(new Event('input', {bubbles: true}));" +
