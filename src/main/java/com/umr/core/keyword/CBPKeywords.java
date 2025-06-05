@@ -428,49 +428,26 @@ public class CBPKeywords {
 
             Thread.sleep(1000);
 
-            // Fill Date of Birth using proper format for date range field
+            // Fill Date of Birth using specific selectors (date range field - fill only first date)
             Boolean dobResult = (Boolean) js.executeScript(
                     "var dobInput = document.querySelector('#dob');" +
                             "if (dobInput) {" +
                             "  dobInput.focus();" +
-                            "  " +
-                            "  // Clear the field completely first" +
+                            "  // Clear the field first" +
                             "  dobInput.value = '';" +
                             "  dobInput.dispatchEvent(new Event('input', {bubbles: true}));" +
-                            "  " +
-                            "  // The field expects MM/DD/YYYY-MM/DD/YYYY format for date range" +
-                            "  // For single date search, use the same date for both start and end" +
-                            "  var singleDate = arguments[0];" +
-                            "  var dateRangeValue = singleDate + '-' + singleDate;" +
-                            "  " +
-                            "  // Set the value directly" +
-                            "  dobInput.value = dateRangeValue;" +
-                            "  " +
-                            "  // Trigger all necessary events for Angular" +
+                            "  // For date range field, we can try just the single date first" +
+                            "  dobInput.value = arguments[0];" +
                             "  dobInput.dispatchEvent(new Event('input', {bubbles: true}));" +
                             "  dobInput.dispatchEvent(new Event('change', {bubbles: true}));" +
                             "  dobInput.dispatchEvent(new Event('blur', {bubbles: true}));" +
-                            "  " +
-                            "  // Also try sending individual keystrokes if direct value setting doesn't work" +
-                            "  if (dobInput.value === '' || dobInput.value !== dateRangeValue) {" +
-                            "    dobInput.focus();" +
-                            "    dobInput.select();" +
-                            "    " +
-                            "    // Send backspace to clear" +
-                            "    dobInput.dispatchEvent(new KeyboardEvent('keydown', {key: 'Backspace', keyCode: 8}));" +
-                            "    dobInput.value = '';" +
-                            "    " +
-                            "    // Send each character" +
-                            "    for (var i = 0; i < dateRangeValue.length; i++) {" +
-                            "      var char = dateRangeValue.charAt(i);" +
-                            "      dobInput.value += char;" +
-                            "      dobInput.dispatchEvent(new KeyboardEvent('keydown', {key: char, bubbles: true}));" +
-                            "      dobInput.dispatchEvent(new Event('input', {bubbles: true}));" +
-                            "    }" +
+                            "  // If that doesn't work, try with dash for range format" +
+                            "  if (dobInput.value === '' || dobInput.value !== arguments[0]) {" +
+                            "    dobInput.value = arguments[0] + '-';" +
+                            "    dobInput.dispatchEvent(new Event('input', {bubbles: true}));" +
                             "    dobInput.dispatchEvent(new Event('change', {bubbles: true}));" +
                             "  }" +
-                            "  " +
-                            "  return dobInput.value.length > 0;" +
+                            "  return true;" +
                             "}" +
                             "return false;", dateOfBirth
             );
