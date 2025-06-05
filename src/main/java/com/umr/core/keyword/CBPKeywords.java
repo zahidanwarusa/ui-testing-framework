@@ -504,20 +504,25 @@ public class CBPKeywords {
 
             // Look for PX results table and select the first checkbox
             Boolean pxCheckboxSelected = (Boolean) js.executeScript(
-                    "var pxTable = document.querySelector('#px3-table');" +
-                            "if (pxTable) {" +
-                            "  var checkboxes = pxTable.querySelectorAll('input[type=\"checkbox\"].grid-checkbox');" +
-                            "  // Skip the header checkbox (index 0) and select the first data row checkbox (index 1)" +
-                            "  if (checkboxes.length > 1) {" +
-                            "    checkboxes[1].scrollIntoView({behavior: 'smooth', block: 'center'});" +
-                            "    checkboxes[1].checked = true;" +
-                            "    checkboxes[1].dispatchEvent(new Event('change', {bubbles: true}));" +
-                            "    checkboxes[1].click();" +
-                            "    return true;" +
+                    "try {" +
+                            "  var pxTable = document.querySelector('#px3-table');" +
+                            "  if (pxTable) {" +
+                            "    var checkboxes = pxTable.querySelectorAll('input[type=\"checkbox\"].grid-checkbox');" +
+                            "    if (checkboxes.length > 1) {" +  // index 0 is the header checkbox
+                            "      var checkbox = checkboxes[1];" +
+                            "      checkbox.scrollIntoView({behavior: 'smooth', block: 'center'});" +
+                            "      checkbox.focus();" +
+                            "      checkbox.checked = true;" +
+                            "      checkbox.dispatchEvent(new Event('input', { bubbles: true }));" +
+                            "      checkbox.dispatchEvent(new Event('change', { bubbles: true }));" +
+                            "      checkbox.click();" +
+                            "      return true;" +
+                            "    }" +
                             "  }" +
-                            "}" +
+                            "} catch (e) { console.error('JS Error:', e); }" +
                             "return false;"
             );
+
 
             if (!pxCheckboxSelected) {
                 // Alternative approach - look for any PX result checkbox
