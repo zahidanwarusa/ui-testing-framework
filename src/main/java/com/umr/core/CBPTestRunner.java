@@ -21,7 +21,7 @@ public class CBPTestRunner {
     public static void main(String[] args) {
         LogUtil.info("Starting CBP Test Execution");
         long startTime = System.currentTimeMillis();
-        
+
         // Initialize email reporter
         emailReporter = new EmailReporter();
 
@@ -54,11 +54,11 @@ public class CBPTestRunner {
 
             // Finalize the report
             ReportManager.finalizeReport();
-            
+
             // Calculate execution time
             long endTime = System.currentTimeMillis();
             long executionTime = (endTime - startTime) / 1000; // in seconds
-            
+
             // Send email report
             sendEmailReport(executionTime);
 
@@ -66,7 +66,7 @@ public class CBPTestRunner {
             LogUtil.error("Error during CBP test execution", e);
             // Make sure to finalize report even if there's an exception
             ReportManager.finalizeReport();
-            
+
             // Send email report even on failure
             sendEmailReport(0);
         }
@@ -77,7 +77,7 @@ public class CBPTestRunner {
         String testName = test.get("TestName");
         String description = test.get("Description");
         String jiraTicket = test.get("JiraTicket"); // Get JIRA ticket from Excel
-        
+
         long testStartTime = System.currentTimeMillis();
 
         LogUtil.startTest(testId, testName);
@@ -172,50 +172,50 @@ public class CBPTestRunner {
             long testEndTime = System.currentTimeMillis();
             long testDuration = (testEndTime - testStartTime) / 1000; // in seconds
             String durationString = formatDuration(testDuration);
-            
+
             // Add test result to email reporter
             emailReporter.addTestResult(testId, testName, testStatus, durationString, jiraTicket, tecsId, failureReason);
-            
+
             // Clean up resources
             context.cleanup();
         }
     }
-    
+
     private static void sendEmailReport(long executionTimeSeconds) {
         try {
             LogUtil.info("Preparing to send email report");
-            
+
             // Create custom subject
-            String customSubject = String.format("CBP Automation Results - %d/%d Passed (%s) - %s", 
-                emailReporter.getPassedTests(), 
-                emailReporter.getTotalTests(),
-                emailReporter.getFailedTests() > 0 ? "FAILURES DETECTED" : "ALL PASSED",
-                new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(new java.util.Date()));
-            
+            String customSubject = String.format("CBP Automation Results - %d/%d Passed (%s) - %s",
+                    emailReporter.getPassedTests(),
+                    emailReporter.getTotalTests(),
+                    emailReporter.getFailedTests() > 0 ? "FAILURES DETECTED" : "ALL PASSED",
+                    new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(new java.util.Date()));
+
             // Create custom header
             String customHeader = String.format(
-                "🚨 CBP Test Automation Execution Summary<br>" +
-                "📅 Execution Date: %s<br>" +
-                "⏱️ Total Execution Time: %s<br>" +
-                "🎯 Test Environment: CBP UAT Environment",
-                new java.text.SimpleDateFormat("EEEE, MMMM dd, yyyy 'at' HH:mm:ss").format(new java.util.Date()),
-                formatDuration(executionTimeSeconds)
+                    "🚨 CBP Test Automation Execution Summary<br>" +
+                            "📅 Execution Date: %s<br>" +
+                            "⏱️ Total Execution Time: %s<br>" +
+                            "🎯 Test Environment: CBP UAT Environment",
+                    new java.text.SimpleDateFormat("EEEE, MMMM dd, yyyy 'at' HH:mm:ss").format(new java.util.Date()),
+                    formatDuration(executionTimeSeconds)
             );
-            
+
             // Send email report
             boolean emailSent = emailReporter.sendEmailReport(customSubject, customHeader);
-            
+
             if (emailSent) {
                 LogUtil.info("Email report sent successfully");
             } else {
                 LogUtil.warn("Failed to send email report");
             }
-            
+
         } catch (Exception e) {
             LogUtil.error("Error sending email report", e);
         }
     }
-    
+
     private static String formatDuration(long seconds) {
         if (seconds < 60) {
             return seconds + " seconds";

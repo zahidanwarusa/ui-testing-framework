@@ -5,8 +5,6 @@ import com.umr.core.TestContext;
 import com.umr.core.annotation.Keyword;
 import com.umr.core.config.ConfigLoader;
 import com.umr.core.factory.PageFactory;
-import com.umr.pages.BasePage;
-import com.umr.pages.LoginPage;
 import com.umr.reporting.ReportManager;
 import com.umr.utils.LogUtil;
 import com.umr.utils.ScreenshotUtils;

@@ -1,9 +1,5 @@
 package com.umr.core.factory;
 
-import com.umr.pages.BasePage;
-import com.umr.pages.HomePage;
-import com.umr.pages.LoginPage;
-import com.umr.pages.SearchResultsPage;
 import com.umr.utils.LogUtil;
 import org.openqa.selenium.WebDriver;
 
