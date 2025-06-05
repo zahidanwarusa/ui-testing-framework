@@ -445,26 +445,67 @@ public class CBPKeywords {
 
             // Click Search button using specific class
             Boolean searchClicked = (Boolean) js.executeScript(
-                    "var searchButton = document.querySelector('button.search-btn, button[type=\"submit\"]');" +
+                    "console.log('Looking for search button...');" +
+                            "var searchButton = document.querySelector('button.search-btn');" +
                             "if (searchButton) {" +
+                            "  console.log('Found search button with class search-btn');" +
+                            "  searchButton.scrollIntoView({behavior: 'smooth', block: 'center'});" +
                             "  searchButton.click();" +
                             "  return true;" +
                             "}" +
+                            "console.log('search-btn not found, trying type=submit');" +
+                            "searchButton = document.querySelector('button[type=\"submit\"]');" +
+                            "if (searchButton) {" +
+                            "  console.log('Found submit button');" +
+                            "  searchButton.scrollIntoView({behavior: 'smooth', block: 'center'});" +
+                            "  searchButton.click();" +
+                            "  return true;" +
+                            "}" +
+                            "console.log('No submit button found, trying searchsubmit attribute');" +
+                            "searchButton = document.querySelector('button[searchsubmit]');" +
+                            "if (searchButton) {" +
+                            "  console.log('Found button with searchsubmit attribute');" +
+                            "  searchButton.scrollIntoView({behavior: 'smooth', block: 'center'});" +
+                            "  searchButton.click();" +
+                            "  return true;" +
+                            "}" +
+                            "console.log('Trying by button text content');" +
+                            "var allButtons = document.querySelectorAll('button');" +
+                            "for (var i = 0; i < allButtons.length; i++) {" +
+                            "  if (allButtons[i].textContent && allButtons[i].textContent.trim().toLowerCase() === 'search') {" +
+                            "    console.log('Found button with Search text');" +
+                            "    allButtons[i].scrollIntoView({behavior: 'smooth', block: 'center'});" +
+                            "    allButtons[i].click();" +
+                            "    return true;" +
+                            "  }" +
+                            "}" +
+                            "console.log('No search button found with any method');" +
                             "return false;"
             );
 
+            // Log the result for debugging
+            LogUtil.info("Search button click result: " + searchClicked);
+
             if (!searchClicked) {
-                // Try alternative search button selector
-                searchClicked = (Boolean) js.executeScript(
-                        "var searchButtons = document.querySelectorAll('button');" +
-                                "for (var i = 0; i < searchButtons.length; i++) {" +
-                                "  if (searchButtons[i].textContent && searchButtons[i].textContent.toLowerCase().includes('search')) {" +
-                                "    searchButtons[i].click();" +
-                                "    return true;" +
-                                "  }" +
+                // Try pressing Enter on the DOB field as a fallback
+                LogUtil.info("Search button not found, trying Enter key on DOB field");
+                Boolean enterPressed = (Boolean) js.executeScript(
+                        "var dobField = document.querySelector('#dob');" +
+                                "if (dobField) {" +
+                                "  dobField.focus();" +
+                                "  var enterEvent = new KeyboardEvent('keydown', {" +
+                                "    key: 'Enter'," +
+                                "    keyCode: 13," +
+                                "    which: 13," +
+                                "    bubbles: true" +
+                                "  });" +
+                                "  dobField.dispatchEvent(enterEvent);" +
+                                "  return true;" +
                                 "}" +
                                 "return false;"
                 );
+                LogUtil.info("Enter key pressed on DOB field: " + enterPressed);
+                searchClicked = enterPressed;
             }
 
             Thread.sleep(5000);
