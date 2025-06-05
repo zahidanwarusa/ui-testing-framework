@@ -444,16 +444,11 @@ public class CBPKeywords {
             Thread.sleep(2000);
 
             Boolean searchClicked = (Boolean) js.executeScript(
-                    "var searchButton = document.querySelector('button.search-btn');" +
-                            "if (searchButton) {" +
-                            "  searchButton.click();" +
-                            "  return true;" +
-                            "}" +
-                            "// If not found by class, try by text content" +
-                            "var buttons = document.querySelectorAll('button');" +
+                    "var buttons = document.querySelectorAll('button.search-btn');" +
                             "for (var i = 0; i < buttons.length; i++) {" +
-                            "  if (buttons[i].textContent.trim() === 'Search') {" +
-                            "    buttons[i].click();" +
+                            "  var btn = buttons[i];" +
+                            "  if (btn.textContent.trim() === 'Search') {" +
+                            "    btn.click();" +
                             "    return true;" +
                             "  }" +
                             "}" +
@@ -764,7 +759,6 @@ public class CBPKeywords {
                             "  searchInput.value = arguments[0];" +
                             "  searchInput.dispatchEvent(new Event('input', {bubbles: true}));" +
                             "  searchInput.dispatchEvent(new Event('change', {bubbles: true}));" +
-                            "  // Trigger enter key to search" +
                             "  var enterEvent = new KeyboardEvent('keydown', {key: 'Enter', keyCode: 13, which: 13});" +
                             "  searchInput.dispatchEvent(enterEvent);" +
                             "  return true;" +
