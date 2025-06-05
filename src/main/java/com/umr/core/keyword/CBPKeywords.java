@@ -429,26 +429,29 @@ public class CBPKeywords {
 
             Thread.sleep(1000);
 
-            // Fill Date of Birth using specific selectors (date range field - fill only first date)
+            // Fill Date of Birth using MMDDYYYY format (no slashes)
+            String dobFormatted = dateOfBirth.replaceAll("[/\\-]", ""); // Remove slashes and dashes
             Boolean dobResult = (Boolean) js.executeScript(
                     "var dobInput = document.querySelector('#dob');" +
                             "if (dobInput) {" +
+                            "  console.log('DOB Input found, current value:', dobInput.value);" +
                             "  dobInput.focus();" +
                             "  dobInput.value = '';" +
                             "  dobInput.dispatchEvent(new Event('input', {bubbles: true}));" +
+                            "  console.log('Cleared field, setting value to:', arguments[0]);" +
                             "  dobInput.value = arguments[0];" +
                             "  dobInput.dispatchEvent(new Event('input', {bubbles: true}));" +
                             "  dobInput.dispatchEvent(new Event('change', {bubbles: true}));" +
-                            "  dobInput.dispatchEvent(new Event('blur', {bubbles: true}));" +
-                            "  if (dobInput.value === '' || dobInput.value !== arguments[0]) {" +
-                            "    dobInput.value = arguments[0] + '-';" +
-                            "    dobInput.dispatchEvent(new Event('input', {bubbles: true}));" +
-                            "    dobInput.dispatchEvent(new Event('change', {bubbles: true}));" +
-                            "  }" +
-                            "  return true;" +
+                            "  dobInput.dispatchEvent(new Event('keyup', {bubbles: true}));" +
+                            "  console.log('After setting, field value is:', dobInput.value);" +
+                            "  return dobInput.value.length > 0;" +
                             "}" +
-                            "return false;", dateOfBirth
+                            "console.log('DOB Input not found');" +
+                            "return false;", dobFormatted
             );
+
+            // Log the result for debugging
+            LogUtil.info("DOB formatted as: " + dobFormatted + ", Result: " + dobResult);
 
             Thread.sleep(2000);
 
@@ -505,6 +508,7 @@ public class CBPKeywords {
             return false;
         }
     }
+
 
     @Keyword("SELECT_PXSEARCH")
     public boolean selectPxSearch(TestContext context) {
