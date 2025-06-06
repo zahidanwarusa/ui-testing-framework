@@ -497,31 +497,25 @@ public class CBPKeywords {
 
             // Get parameters from test data
             String gridTitle = context.getTestDataAsString("GridTitle");        // e.g., "PX", "Person", "Prior Events", "Traveler"
-            String searchCriteria = context.getTestDataAsString("SearchCriteria"); // e.g., "Wood", "Anika", or any search text
-            String searchType = context.getTestDataAsString("SearchType");      // e.g., "first", "exact", "contains" (optional)
 
             // Default values if not provided
             if (gridTitle == null) gridTitle = "PX"; // Default to PX for backward compatibility
-            if (searchCriteria == null) searchCriteria = "Wood"; // Default search criteria
-            if (searchType == null) searchType = "contains"; // Default search type
 
-            LogUtil.info("Searching for checkbox in grid: '" + gridTitle + "' with criteria: '" + searchCriteria + "' using search type: '" + searchType + "'");
+            LogUtil.info("Looking for grid with title: '" + gridTitle + "' and will select any available checkbox");
             ReportManager.logInfo(context.getTestId(), context.getTestName(),
-                    "Searching for checkbox in grid: '" + gridTitle + "' with criteria: '" + searchCriteria + "' using search type: '" + searchType + "'");
+                    "Looking for grid with title: '" + gridTitle + "' and will select any available checkbox");
 
             Thread.sleep(3000);
 
-            // Generalized JavaScript to find and select checkbox from any grid
+            // Generalized JavaScript to find grid, scroll to it, and select any checkbox
             Boolean checkboxSelected = (Boolean) js.executeScript(
                     "try {" +
                             "  console.log('Looking for grid with title: ' + arguments[0]);" +
-                            "  console.log('Search criteria: ' + arguments[1]);" +
-                            "  console.log('Search type: ' + arguments[2]);" +
 
                             // Step 1: Find the grid section by title
                             "  var gridTitleElements = document.querySelectorAll('.sq-grid-title');" +
                             "  var targetGrid = null;" +
-                            "  var targetTable = null;" +
+                            "  var targetContainer = null;" +
 
                             "  for (var i = 0; i < gridTitleElements.length; i++) {" +
                             "    var titleText = gridTitleElements[i].textContent.trim();" +
@@ -538,74 +532,76 @@ public class CBPKeywords {
                             "    return false;" +
                             "  }" +
 
-                            // Step 2: Find the table associated with this grid
-                            "  var gridContainer = targetGrid.closest('app-micro-px-3') || " +
-                            "                      targetGrid.closest('app-micro-person') || " +
-                            "                      targetGrid.closest('app-micro-prior-events') || " +
-                            "                      targetGrid.closest('app-micro-traveler') || " +
-                            "                      targetGrid.closest('div');" +
+                            // Step 2: Scroll to the grid section
+                            "  console.log('Scrolling to grid section');" +
+                            "  targetGrid.scrollIntoView({behavior: 'smooth', block: 'center'});" +
 
-                            "  if (gridContainer) {" +
-                            "    targetTable = gridContainer.querySelector('table');" +
+                            // Step 3: Find the container and table for this grid
+                            "  targetContainer = targetGrid.closest('app-micro-px-3') || " +
+                            "                    targetGrid.closest('app-micro-person') || " +
+                            "                    targetGrid.closest('app-micro-prior-events') || " +
+                            "                    targetGrid.closest('app-micro-traveler') || " +
+                            "                    targetGrid.closest('div[class*=\"ng-star-inserted\"]') || " +
+                            "                    targetGrid.closest('div');" +
+
+                            "  if (!targetContainer) {" +
+                            "    console.log('Grid container not found');" +
+                            "    return false;" +
                             "  }" +
+
+                            "  console.log('Found grid container');" +
+
+                            // Step 4: Look for table within this container
+                            "  var targetTable = targetContainer.querySelector('table') || " +
+                            "                    targetContainer.querySelector('table[id*=\"table\"]') || " +
+                            "                    targetContainer.querySelector('table.mat-sort');" +
 
                             "  if (!targetTable) {" +
-                            "    console.log('Table not found for grid: ' + arguments[0]);" +
+                            "    console.log('Table not found in grid container');" +
                             "    return false;" +
                             "  }" +
 
-                            "  console.log('Found target table for grid: ' + arguments[0]);" +
+                            "  console.log('Found target table');" +
 
-                            // Step 3: Find checkboxes in the target table
-                            "  var checkboxes = targetTable.querySelectorAll('input[type=\"checkbox\"].grid-checkbox');" +
-                            "  console.log('Found ' + checkboxes.length + ' checkboxes in target grid');" +
+                            // Step 5: Find all checkboxes in this table (excluding header)
+                            "  var allCheckboxes = targetTable.querySelectorAll('input[type=\"checkbox\"]');" +
+                            "  console.log('Found ' + allCheckboxes.length + ' total checkboxes');" +
 
-                            "  if (checkboxes.length <= 1) {" +
-                            "    console.log('No data checkboxes found (only header checkbox)');" +
+                            "  if (allCheckboxes.length <= 1) {" +
+                            "    console.log('No data checkboxes found (only header or none)');" +
                             "    return false;" +
                             "  }" +
 
-                            // Step 4: Select checkbox based on search criteria and type
+                            // Step 6: Find the first available data checkbox (skip header at index 0)
                             "  var selectedCheckbox = null;" +
-                            "  var searchCriteria = arguments[1].toLowerCase();" +
-                            "  var searchType = arguments[2].toLowerCase();" +
-
-                            "  for (var j = 1; j < checkboxes.length; j++) {" + // Skip header checkbox at index 0
-                            "    var checkbox = checkboxes[j];" +
+                            "  for (var j = 1; j < allCheckboxes.length; j++) {" +
+                            "    var checkbox = allCheckboxes[j];" +
                             "    var row = checkbox.closest('tr');" +
-                            "    if (row) {" +
-                            "      var rowText = row.textContent.toLowerCase();" +
-                            "      console.log('Checking row ' + j + ': ' + rowText.substring(0, 100));" +
-
-                            "      var isMatch = false;" +
-                            "      if (searchType === 'exact') {" +
-                            "        isMatch = rowText === searchCriteria;" +
-                            "      } else if (searchType === 'contains') {" +
-                            "        isMatch = rowText.includes(searchCriteria);" +
-                            "      } else if (searchType === 'first') {" +
-                            "        isMatch = true; // Select first available checkbox" +
-                            "      }" +
-
-                            "      if (isMatch) {" +
-                            "        console.log('Found matching row, selecting checkbox');" +
-                            "        selectedCheckbox = checkbox;" +
-                            "        break;" +
-                            "      }" +
+                            "    if (row && checkbox.offsetParent !== null) {" + // Check if checkbox is visible
+                            "      console.log('Found available checkbox at row ' + j);" +
+                            "      selectedCheckbox = checkbox;" +
+                            "      break;" +
                             "    }" +
                             "  }" +
 
-                            // Step 5: Click the selected checkbox
+                            // Step 7: Select the checkbox
                             "  if (selectedCheckbox) {" +
+                            "    console.log('Selecting checkbox');" +
                             "    selectedCheckbox.scrollIntoView({behavior: 'smooth', block: 'center'});" +
-                            "    selectedCheckbox.focus();" +
-                            "    selectedCheckbox.checked = true;" +
-                            "    selectedCheckbox.dispatchEvent(new Event('input', { bubbles: true }));" +
-                            "    selectedCheckbox.dispatchEvent(new Event('change', { bubbles: true }));" +
-                            "    selectedCheckbox.click();" +
+                            "    " +
+                            "    // Wait a moment for scroll to complete" +
+                            "    setTimeout(function() {" +
+                            "      selectedCheckbox.focus();" +
+                            "      selectedCheckbox.checked = true;" +
+                            "      selectedCheckbox.dispatchEvent(new Event('input', { bubbles: true }));" +
+                            "      selectedCheckbox.dispatchEvent(new Event('change', { bubbles: true }));" +
+                            "      selectedCheckbox.click();" +
+                            "    }, 500);" +
+                            "    " +
                             "    console.log('Checkbox selected successfully');" +
                             "    return true;" +
                             "  } else {" +
-                            "    console.log('No matching checkbox found for criteria: ' + arguments[1]);" +
+                            "    console.log('No available checkbox found in grid');" +
                             "    return false;" +
                             "  }" +
 
@@ -613,28 +609,28 @@ public class CBPKeywords {
                             "  console.error('Error in SELECT_SEARCH:', e);" +
                             "  return false;" +
                             "}",
-                    gridTitle, searchCriteria, searchType
+                    gridTitle
             );
 
-            Thread.sleep(2000);
+            Thread.sleep(3000); // Wait for any checkbox selection to complete
 
             // Take screenshot after selection
-            String screenshotPath = ScreenshotUtils.takeScreenshot("Search_Record_Selected_" + gridTitle.replace(" ", "_"));
+            String screenshotPath = ScreenshotUtils.takeScreenshot("Checkbox_Selected_" + gridTitle.replace(" ", "_"));
             if (screenshotPath != null) {
                 ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
-                        screenshotPath, "Search Record Selected from " + gridTitle + " Grid");
+                        screenshotPath, "Checkbox Selected from " + gridTitle + " Grid");
             }
 
             if (checkboxSelected != null && checkboxSelected) {
-                LogUtil.info("Search record selected successfully from " + gridTitle + " grid with criteria: " + searchCriteria);
+                LogUtil.info("Checkbox selected successfully from " + gridTitle + " grid");
                 ReportManager.logPass(context.getTestId(), context.getTestName(),
-                        "Search record selected successfully from " + gridTitle + " grid with criteria: " + searchCriteria);
+                        "Checkbox selected successfully from " + gridTitle + " grid");
                 return true;
             } else {
-                LogUtil.error("Failed to find or select record from " + gridTitle + " grid with criteria: " + searchCriteria);
-                context.setTestFailed("Failed to find or select record from " + gridTitle + " grid with criteria: " + searchCriteria);
+                LogUtil.error("Failed to find or select checkbox from " + gridTitle + " grid");
+                context.setTestFailed("Failed to find or select checkbox from " + gridTitle + " grid");
                 ReportManager.logFail(context.getTestId(), context.getTestName(),
-                        "Failed to find or select record from " + gridTitle + " grid with criteria: " + searchCriteria);
+                        "Failed to find or select checkbox from " + gridTitle + " grid");
                 return false;
             }
 
