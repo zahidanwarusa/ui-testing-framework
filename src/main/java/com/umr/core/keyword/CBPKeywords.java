@@ -524,81 +524,163 @@ public class CBPKeywords {
             js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", gridTitleElement);
             Thread.sleep(2000);
 
-            // Step 3: Find the grid container and table using relative XPath
-            WebElement gridContainer = null;
+            // Step 3: Find the table using a more robust approach that works for any grid
             WebElement targetTable = null;
 
-            // Try different approaches to find the container
-            String[] containerXPaths = {
-                    "//span[@class='sq-grid-title' and contains(text(), '" + gridTitle + "')]/ancestor::app-micro-px-3",
-                    "//span[@class='sq-grid-title' and contains(text(), '" + gridTitle + "')]/ancestor::app-micro-person",
-                    "//span[@class='sq-grid-title' and contains(text(), '" + gridTitle + "')]/ancestor::app-micro-prior-events",
-                    "//span[@class='sq-grid-title' and contains(text(), '" + gridTitle + "')]/ancestor::app-micro-traveler",
-                    "//span[@class='sq-grid-title' and contains(text(), '" + gridTitle + "')]/ancestor::div[contains(@class, 'ng-star-inserted')][1]"
-            };
+            LogUtil.info("Using generic approach to find table for grid: " + gridTitle);
 
-            for (String containerXPath : containerXPaths) {
+            try {
+                // Strategy 1: Find the immediate container of the grid title and look for table within it
+                WebElement gridTitleContainer = gridTitleElement.findElement(By.xpath("./ancestor::div[contains(@class, 'section-header')]"));
+                WebElement gridSection = gridTitleContainer.findElement(By.xpath("./following-sibling::div[.//table][1]"));
+                targetTable = gridSection.findElement(By.xpath(".//table"));
+                LogUtil.info("Found table using Strategy 1 - following sibling approach");
+
+            } catch (Exception e1) {
+                LogUtil.info("Strategy 1 failed, trying Strategy 2: " + e1.getMessage());
+
                 try {
-                    gridContainer = driver.findElement(By.xpath(containerXPath));
-                    LogUtil.info("Found grid container using XPath: " + containerXPath);
-                    break;
-                } catch (NoSuchElementException e) {
-                    LogUtil.debug("Container not found with XPath: " + containerXPath);
+                    // Strategy 2: Find the parent component and look for any table within it
+                    WebElement parentComponent = gridTitleElement.findElement(By.xpath("./ancestor::*[starts-with(name(), 'app-micro')]"));
+                    targetTable = parentComponent.findElement(By.xpath(".//table[contains(@class, 'mat-sort')]"));
+                    LogUtil.info("Found table using Strategy 2 - parent component approach");
+
+                } catch (Exception e2) {
+                    LogUtil.info("Strategy 2 failed, trying Strategy 3: " + e2.getMessage());
+
+                    try {
+                        // Strategy 3: Look for table that comes after our grid title in the DOM
+                        String tableXPath = "//span[@class='sq-grid-title' and contains(text(), '" + gridTitle + "')]/ancestor::div[1]/following-sibling::*//table[contains(@class, 'mat-sort')] | " +
+                                "//span[@class='sq-grid-title' and contains(text(), '" + gridTitle + "')]/ancestor::div[2]/following-sibling::*//table[contains(@class, 'mat-sort')] | " +
+                                "//span[@class='sq-grid-title' and contains(text(), '" + gridTitle + "')]/ancestor::div[3]//table[contains(@class, 'mat-sort')]";
+
+                        List<WebElement> possibleTables = driver.findElements(By.xpath(tableXPath));
+                        LogUtil.info("Strategy 3 found " + possibleTables.size() + " possible tables");
+
+                        // Find the first table that has actual data checkboxes
+                        for (WebElement table : possibleTables) {
+                            List<WebElement> checkboxes = table.findElements(By.xpath(".//input[@type='checkbox' and contains(@class, 'grid-checkbox')]"));
+                            LogUtil.info("Checking table with " + checkboxes.size() + " checkboxes");
+
+                            if (checkboxes.size() > 1) { // Header + at least one data row
+                                targetTable = table;
+                                LogUtil.info("Selected table with " + checkboxes.size() + " checkboxes");
+                                break;
+                            }
+                        }
+
+                    } catch (Exception e3) {
+                        LogUtil.error("All strategies failed: " + e3.getMessage());
+                    }
                 }
             }
 
-            if (gridContainer == null) {
-                LogUtil.error("Grid container not found for: " + gridTitle);
-                context.setTestFailed("Grid container not found for: " + gridTitle);
-                ReportManager.logFail(context.getTestId(), context.getTestName(), "Grid container not found for: " + gridTitle);
-                return false;
+            // Strategy 4: Last resort - use distance-based approach
+            if (targetTable == null) {
+                LogUtil.info("Trying Strategy 4 - distance-based approach");
+
+                try {
+                    // Find all tables on the page
+                    List<WebElement> allTables = driver.findElements(By.xpath("//table[contains(@class, 'mat-sort')]"));
+                    LogUtil.info("Found " + allTables.size() + " total tables on page");
+
+                    // Find the table closest to our grid title
+                    WebElement closestTable = null;
+                    int minDistance = Integer.MAX_VALUE;
+
+                    for (WebElement table : allTables) {
+                        try {
+                            // Calculate approximate distance between grid title and table
+                            int titleY = gridTitleElement.getLocation().getY();
+                            int tableY = table.getLocation().getY();
+                            int distance = Math.abs(tableY - titleY);
+
+                            // Only consider tables that come after the title (positive distance with reasonable range)
+                            if (tableY > titleY && distance < 1000 && distance < minDistance) {
+                                // Verify this table has data checkboxes
+                                List<WebElement> checkboxes = table.findElements(By.xpath(".//input[@type='checkbox' and contains(@class, 'grid-checkbox')]"));
+                                if (checkboxes.size() > 1) {
+                                    closestTable = table;
+                                    minDistance = distance;
+                                    LogUtil.info("Found closer table at distance " + distance + " with " + checkboxes.size() + " checkboxes");
+                                }
+                            }
+                        } catch (Exception e) {
+                            LogUtil.debug("Error checking table distance: " + e.getMessage());
+                        }
+                    }
+
+                    if (closestTable != null) {
+                        targetTable = closestTable;
+                        LogUtil.info("Selected closest table using Strategy 4");
+                    }
+
+                } catch (Exception e4) {
+                    LogUtil.error("Strategy 4 also failed: " + e4.getMessage());
+                }
             }
 
-            // Step 4: Find the table within the container
-            String[] tableXPaths = {
-                    ".//table",
-                    ".//table[contains(@id, 'table')]",
-                    ".//table[@class='mat-sort table table-striped mdl-js-data-table']"
-            };
+            // Verify we found a table and it's the right one
+            if (targetTable != null) {
+                String tableId = targetTable.getAttribute("id");
+                String tableClass = targetTable.getAttribute("class");
+                LogUtil.info("Found table - ID: " + tableId + ", Class: " + tableClass);
 
-            for (String tableXPath : tableXPaths) {
-                try {
-                    targetTable = gridContainer.findElement(By.xpath(tableXPath));
-                    LogUtil.info("Found target table using relative XPath: " + tableXPath);
-                    break;
-                } catch (NoSuchElementException e) {
-                    LogUtil.debug("Table not found with XPath: " + tableXPath);
+                // Take verification screenshot
+                js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", targetTable);
+                Thread.sleep(1500);
+
+                String verificationScreenshotPath = ScreenshotUtils.takeScreenshot("Table_Found_" + gridTitle.replace(" ", "_"));
+                if (verificationScreenshotPath != null) {
+                    ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
+                            verificationScreenshotPath, "🎯 FOUND: Table for " + gridTitle + " (ID: " + tableId + ")");
                 }
             }
 
             if (targetTable == null) {
-                LogUtil.error("Table not found in grid container");
-                context.setTestFailed("Table not found in grid container");
-                ReportManager.logFail(context.getTestId(), context.getTestName(), "Table not found in grid container");
+                LogUtil.error("Could not find table for grid: " + gridTitle + " using any strategy");
+                context.setTestFailed("Could not find table for grid: " + gridTitle);
+                ReportManager.logFail(context.getTestId(), context.getTestName(), "Could not find table for grid: " + gridTitle);
+
+                // Take debug screenshot showing current page state
+                String debugScreenshotPath = ScreenshotUtils.takeScreenshot("Debug_No_Table_Found_" + gridTitle.replace(" ", "_"));
+                if (debugScreenshotPath != null) {
+                    ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
+                            debugScreenshotPath, "🔍 DEBUG: No table found for " + gridTitle);
+                }
                 return false;
             }
 
-            // Step 5: Find all checkboxes in the table (excluding header)
+            // Step 4: Find all checkboxes specifically in THIS table only
             List<WebElement> allCheckboxes = targetTable.findElements(By.xpath(".//input[@type='checkbox']"));
-            LogUtil.info("Found " + allCheckboxes.size() + " total checkboxes in the table");
-
             if (allCheckboxes.size() <= 1) {
-                LogUtil.error("No data checkboxes found (only header or none)");
+                LogUtil.error("No data checkboxes found in " + gridTitle + " grid (only header or none). Found " + allCheckboxes.size() + " checkboxes total.");
                 context.setTestFailed("No data checkboxes found in " + gridTitle + " grid");
                 ReportManager.logFail(context.getTestId(), context.getTestName(), "No data checkboxes found in " + gridTitle + " grid");
+
+                // Take screenshot for debugging
+                String debugScreenshotPath = ScreenshotUtils.takeScreenshot("Debug_No_Data_Checkboxes_" + gridTitle.replace(" ", "_"));
+                if (debugScreenshotPath != null) {
+                    ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
+                            debugScreenshotPath, "🔍 DEBUG: No data checkboxes in " + gridTitle + " grid");
+                }
                 return false;
             }
 
-            // Step 6: Find the first available data checkbox (skip header at index 0)
+            // Step 5: Find the first available data checkbox (skip header at index 0)
             WebElement selectedCheckbox = null;
             WebElement selectedRow = null;
+
+            LogUtil.info("Looking for available checkboxes in " + gridTitle + " grid table...");
 
             for (int i = 1; i < allCheckboxes.size(); i++) {
                 WebElement checkbox = allCheckboxes.get(i);
                 WebElement row = checkbox.findElement(By.xpath("./ancestor::tr[1]"));
 
+                LogUtil.info("Checking checkbox " + i + " - isDisplayed: " + checkbox.isDisplayed() + ", isEnabled: " + checkbox.isEnabled());
+
                 if (checkbox.isDisplayed() && checkbox.isEnabled()) {
-                    LogUtil.info("Found available checkbox at row " + i);
+                    LogUtil.info("Found available checkbox at row " + i + " in " + gridTitle + " grid");
                     selectedCheckbox = checkbox;
                     selectedRow = row;
                     break;
@@ -606,13 +688,32 @@ public class CBPKeywords {
             }
 
             if (selectedCheckbox == null) {
-                LogUtil.error("No available checkbox found in grid");
+                LogUtil.error("No available checkbox found in " + gridTitle + " grid table");
                 context.setTestFailed("No available checkbox found in " + gridTitle + " grid");
                 ReportManager.logFail(context.getTestId(), context.getTestName(), "No available checkbox found in " + gridTitle + " grid");
+
+                // Take screenshot for debugging
+                String debugScreenshotPath = ScreenshotUtils.takeScreenshot("Debug_No_Checkbox_" + gridTitle.replace(" ", "_"));
+                if (debugScreenshotPath != null) {
+                    ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
+                            debugScreenshotPath, "🔍 DEBUG: No checkbox found in " + gridTitle + " grid");
+                }
                 return false;
             }
 
-            // Step 7: Scroll to and highlight the checkbox/row
+            // Step 7: Scroll to and highlight the checkbox/row - ENSURE WE STAY ON THIS TABLE
+            js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", selectedCheckbox);
+            Thread.sleep(1000);
+
+            // Double-check that we're still looking at the right table after scroll
+            String currentTableId = targetTable.getAttribute("id");
+            LogUtil.info("After scroll - still on table: " + currentTableId + " for grid: " + gridTitle);
+
+            // Force scroll to the specific table again to be sure
+            js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", targetTable);
+            Thread.sleep(1000);
+
+            // Then scroll to the checkbox within that table
             js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", selectedCheckbox);
             Thread.sleep(1000);
 
