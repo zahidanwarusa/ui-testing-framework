@@ -7,16 +7,14 @@ import com.umr.reporting.ReportManager;
 import com.umr.utils.LogUtil;
 import com.umr.utils.ScreenshotUtils;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -496,9 +494,7 @@ public class CBPKeywords {
             JavascriptExecutor js = (JavascriptExecutor) driver;
 
             // Get parameters from test data
-            String gridTitle = context.getTestDataAsString("GridTitle");        // e.g., "PX", "Person", "Prior Events", "Traveler"
-
-            // Default values if not provided
+            String gridTitle = context.getTestDataAsString("GridTitle");
             if (gridTitle == null) gridTitle = "PX"; // Default to PX for backward compatibility
 
             LogUtil.info("Looking for grid with title: '" + gridTitle + "' and will select any available checkbox");
@@ -507,150 +503,153 @@ public class CBPKeywords {
 
             Thread.sleep(3000);
 
-            // Generalized JavaScript to find grid, scroll to it, and select any checkbox
-            Boolean checkboxSelected = (Boolean) js.executeScript(
-                    "try {" +
-                            "  console.log('Looking for grid with title: ' + arguments[0]);" +
+            // Step 1: Find the grid section using dynamic XPath
+            String gridTitleXPath = "//span[@class='sq-grid-title' and contains(text(), '" + gridTitle + "')]";
 
-                            // Step 1: Find the grid section by title
-                            "  var gridTitleElements = document.querySelectorAll('.sq-grid-title');" +
-                            "  var targetGrid = null;" +
-                            "  var targetContainer = null;" +
+            LogUtil.info("Searching for grid with XPath: " + gridTitleXPath);
 
-                            "  for (var i = 0; i < gridTitleElements.length; i++) {" +
-                            "    var titleText = gridTitleElements[i].textContent.trim();" +
-                            "    console.log('Found grid title: ' + titleText);" +
-                            "    if (titleText.toLowerCase().includes(arguments[0].toLowerCase())) {" +
-                            "      console.log('Found matching grid: ' + titleText);" +
-                            "      targetGrid = gridTitleElements[i];" +
-                            "      break;" +
-                            "    }" +
-                            "  }" +
+            WebElement gridTitleElement = null;
+            try {
+                gridTitleElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(gridTitleXPath)));
+                LogUtil.info("Found grid title element: " + gridTitleElement.getText());
+            } catch (Exception e) {
+                LogUtil.error("Grid title not found: " + gridTitle);
+                context.setTestFailed("Grid title not found: " + gridTitle);
+                ReportManager.logFail(context.getTestId(), context.getTestName(), "Grid title not found: " + gridTitle);
+                return false;
+            }
 
-                            "  if (!targetGrid) {" +
-                            "    console.log('Grid title not found: ' + arguments[0]);" +
-                            "    return false;" +
-                            "  }" +
+            // Step 2: Scroll to the grid section
+            LogUtil.info("Scrolling to grid section");
+            js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", gridTitleElement);
+            Thread.sleep(2000);
 
-                            // Step 2: Scroll to the grid section
-                            "  console.log('Scrolling to grid section');" +
-                            "  targetGrid.scrollIntoView({behavior: 'smooth', block: 'center'});" +
+            // Step 3: Find the grid container and table using relative XPath
+            WebElement gridContainer = null;
+            WebElement targetTable = null;
 
-                            // Step 3: Find the container and table for this grid
-                            "  targetContainer = targetGrid.closest('app-micro-px-3') || " +
-                            "                    targetGrid.closest('app-micro-person') || " +
-                            "                    targetGrid.closest('app-micro-prior-events') || " +
-                            "                    targetGrid.closest('app-micro-traveler') || " +
-                            "                    targetGrid.closest('div[class*=\"ng-star-inserted\"]') || " +
-                            "                    targetGrid.closest('div');" +
+            // Try different approaches to find the container
+            String[] containerXPaths = {
+                    "//span[@class='sq-grid-title' and contains(text(), '" + gridTitle + "')]/ancestor::app-micro-px-3",
+                    "//span[@class='sq-grid-title' and contains(text(), '" + gridTitle + "')]/ancestor::app-micro-person",
+                    "//span[@class='sq-grid-title' and contains(text(), '" + gridTitle + "')]/ancestor::app-micro-prior-events",
+                    "//span[@class='sq-grid-title' and contains(text(), '" + gridTitle + "')]/ancestor::app-micro-traveler",
+                    "//span[@class='sq-grid-title' and contains(text(), '" + gridTitle + "')]/ancestor::div[contains(@class, 'ng-star-inserted')][1]"
+            };
 
-                            "  if (!targetContainer) {" +
-                            "    console.log('Grid container not found');" +
-                            "    return false;" +
-                            "  }" +
+            for (String containerXPath : containerXPaths) {
+                try {
+                    gridContainer = driver.findElement(By.xpath(containerXPath));
+                    LogUtil.info("Found grid container using XPath: " + containerXPath);
+                    break;
+                } catch (NoSuchElementException e) {
+                    LogUtil.debug("Container not found with XPath: " + containerXPath);
+                }
+            }
 
-                            "  console.log('Found grid container');" +
+            if (gridContainer == null) {
+                LogUtil.error("Grid container not found for: " + gridTitle);
+                context.setTestFailed("Grid container not found for: " + gridTitle);
+                ReportManager.logFail(context.getTestId(), context.getTestName(), "Grid container not found for: " + gridTitle);
+                return false;
+            }
 
-                            // Step 4: Look for table within this container
-                            "  var targetTable = targetContainer.querySelector('table') || " +
-                            "                    targetContainer.querySelector('table[id*=\"table\"]') || " +
-                            "                    targetContainer.querySelector('table.mat-sort');" +
+            // Step 4: Find the table within the container
+            String[] tableXPaths = {
+                    ".//table",
+                    ".//table[contains(@id, 'table')]",
+                    ".//table[@class='mat-sort table table-striped mdl-js-data-table']"
+            };
 
-                            "  if (!targetTable) {" +
-                            "    console.log('Table not found in grid container');" +
-                            "    return false;" +
-                            "  }" +
+            for (String tableXPath : tableXPaths) {
+                try {
+                    targetTable = gridContainer.findElement(By.xpath(tableXPath));
+                    LogUtil.info("Found target table using relative XPath: " + tableXPath);
+                    break;
+                } catch (NoSuchElementException e) {
+                    LogUtil.debug("Table not found with XPath: " + tableXPath);
+                }
+            }
 
-                            "  console.log('Found target table');" +
+            if (targetTable == null) {
+                LogUtil.error("Table not found in grid container");
+                context.setTestFailed("Table not found in grid container");
+                ReportManager.logFail(context.getTestId(), context.getTestName(), "Table not found in grid container");
+                return false;
+            }
 
-                            // Step 5: Find all checkboxes in this table (excluding header)
-                            "  var allCheckboxes = targetTable.querySelectorAll('input[type=\"checkbox\"]');" +
-                            "  console.log('Found ' + allCheckboxes.length + ' total checkboxes');" +
+            // Step 5: Find all checkboxes in the table (excluding header)
+            List<WebElement> allCheckboxes = targetTable.findElements(By.xpath(".//input[@type='checkbox']"));
+            LogUtil.info("Found " + allCheckboxes.size() + " total checkboxes in the table");
 
-                            "  if (allCheckboxes.length <= 1) {" +
-                            "    console.log('No data checkboxes found (only header or none)');" +
-                            "    return false;" +
-                            "  }" +
+            if (allCheckboxes.size() <= 1) {
+                LogUtil.error("No data checkboxes found (only header or none)");
+                context.setTestFailed("No data checkboxes found in " + gridTitle + " grid");
+                ReportManager.logFail(context.getTestId(), context.getTestName(), "No data checkboxes found in " + gridTitle + " grid");
+                return false;
+            }
 
-                            // Step 6: Find the first available data checkbox (skip header at index 0)
-                            "  var selectedCheckbox = null;" +
-                            "  for (var j = 1; j < allCheckboxes.length; j++) {" +
-                            "    var checkbox = allCheckboxes[j];" +
-                            "    var row = checkbox.closest('tr');" +
-                            "    if (row && checkbox.offsetParent !== null) {" + // Check if checkbox is visible
-                            "      console.log('Found available checkbox at row ' + j);" +
-                            "      selectedCheckbox = checkbox;" +
-                            "      break;" +
-                            "    }" +
-                            "  }" +
+            // Step 6: Find the first available data checkbox (skip header at index 0)
+            WebElement selectedCheckbox = null;
+            WebElement selectedRow = null;
 
-                            // Step 7: Highlight and select the checkbox
-                            "  if (selectedCheckbox) {" +
-                            "    console.log('Selecting checkbox');" +
-                            "    selectedCheckbox.scrollIntoView({behavior: 'smooth', block: 'center'});" +
-                            "    " +
-                            "    // Get the row for highlighting" +
-                            "    var targetRow = selectedCheckbox.closest('tr');" +
-                            "    " +
-                            "    // Store original styles" +
-                            "    var originalRowStyle = targetRow ? targetRow.getAttribute('style') || '' : '';" +
-                            "    var originalCheckboxStyle = selectedCheckbox.getAttribute('style') || '';" +
-                            "    " +
-                            "    // Apply highlighting to the entire row and checkbox" +
-                            "    if (targetRow) {" +
-                            "      targetRow.style.backgroundColor = '#ffff99';" +
-                            "      targetRow.style.border = '3px solid #ff6600';" +
-                            "      targetRow.style.boxShadow = '0 0 10px #ff6600';" +
-                            "    }" +
-                            "    " +
-                            "    // Highlight the checkbox itself" +
-                            "    selectedCheckbox.style.transform = 'scale(1.5)';" +
-                            "    selectedCheckbox.style.border = '3px solid #ff0000';" +
-                            "    selectedCheckbox.style.boxShadow = '0 0 8px #ff0000';" +
-                            "    " +
-                            "    // Add a visual indicator next to the checkbox" +
-                            "    var indicator = document.createElement('span');" +
-                            "    indicator.innerHTML = ' ← SELECTED';" +
-                            "    indicator.style.color = '#ff0000';" +
-                            "    indicator.style.fontWeight = 'bold';" +
-                            "    indicator.style.fontSize = '14px';" +
-                            "    indicator.style.marginLeft = '10px';" +
-                            "    indicator.className = 'checkbox-selection-indicator';" +
-                            "    " +
-                            "    // Insert the indicator after the checkbox" +
-                            "    var checkboxCell = selectedCheckbox.closest('td');" +
-                            "    if (checkboxCell) {" +
-                            "      checkboxCell.appendChild(indicator);" +
-                            "    }" +
-                            "    " +
-                            "    // Store highlighting info for later cleanup" +
-                            "    window.selectedCheckboxInfo = {" +
-                            "      checkbox: selectedCheckbox," +
-                            "      row: targetRow," +
-                            "      originalRowStyle: originalRowStyle," +
-                            "      originalCheckboxStyle: originalCheckboxStyle," +
-                            "      indicator: indicator" +
-                            "    };" +
-                            "    " +
-                            "    // Select the checkbox" +
-                            "    selectedCheckbox.focus();" +
-                            "    selectedCheckbox.checked = true;" +
-                            "    selectedCheckbox.dispatchEvent(new Event('input', { bubbles: true }));" +
-                            "    selectedCheckbox.dispatchEvent(new Event('change', { bubbles: true }));" +
-                            "    selectedCheckbox.click();" +
-                            "    " +
-                            "    console.log('Checkbox selected and highlighted successfully');" +
-                            "    return true;" +
-                            "  } else {" +
-                            "    console.log('No available checkbox found in grid');" +
-                            "    return false;" +
-                            "  }" +
+            for (int i = 1; i < allCheckboxes.size(); i++) {
+                WebElement checkbox = allCheckboxes.get(i);
+                WebElement row = checkbox.findElement(By.xpath("./ancestor::tr[1]"));
 
-                            "} catch (e) {" +
-                            "  console.error('Error in SELECT_SEARCH:', e);" +
-                            "  return false;" +
-                            "}",
-                    gridTitle
+                if (checkbox.isDisplayed() && checkbox.isEnabled()) {
+                    LogUtil.info("Found available checkbox at row " + i);
+                    selectedCheckbox = checkbox;
+                    selectedRow = row;
+                    break;
+                }
+            }
+
+            if (selectedCheckbox == null) {
+                LogUtil.error("No available checkbox found in grid");
+                context.setTestFailed("No available checkbox found in " + gridTitle + " grid");
+                ReportManager.logFail(context.getTestId(), context.getTestName(), "No available checkbox found in " + gridTitle + " grid");
+                return false;
+            }
+
+            // Step 7: Scroll to and highlight the checkbox/row
+            js.executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", selectedCheckbox);
+            Thread.sleep(1000);
+
+            // Apply highlighting using JavaScript
+            String originalRowStyle = selectedRow.getAttribute("style");
+            String originalCheckboxStyle = selectedCheckbox.getAttribute("style");
+
+            LogUtil.info("Applying highlighting to selected checkbox and row");
+
+            // Highlight the row
+            js.executeScript(
+                    "arguments[0].style.backgroundColor = '#ffff99';" +
+                            "arguments[0].style.border = '3px solid #ff6600';" +
+                            "arguments[0].style.boxShadow = '0 0 10px #ff6600';",
+                    selectedRow
+            );
+
+            // Highlight the checkbox
+            js.executeScript(
+                    "arguments[0].style.transform = 'scale(1.5)';" +
+                            "arguments[0].style.border = '3px solid #ff0000';" +
+                            "arguments[0].style.boxShadow = '0 0 8px #ff0000';",
+                    selectedCheckbox
+            );
+
+            // Add visual indicator
+            js.executeScript(
+                    "var indicator = document.createElement('span');" +
+                            "indicator.innerHTML = ' ← SELECTED';" +
+                            "indicator.style.color = '#ff0000';" +
+                            "indicator.style.fontWeight = 'bold';" +
+                            "indicator.style.fontSize = '14px';" +
+                            "indicator.style.marginLeft = '10px';" +
+                            "indicator.className = 'checkbox-selection-indicator';" +
+                            "var checkboxCell = arguments[0].closest('td');" +
+                            "if (checkboxCell) { checkboxCell.appendChild(indicator); }",
+                    selectedCheckbox
             );
 
             Thread.sleep(2000); // Wait for highlighting to be visible
@@ -662,42 +661,39 @@ public class CBPKeywords {
                         highlightedScreenshotPath, "🎯 HIGHLIGHTED: Checkbox Selected from " + gridTitle + " Grid");
             }
 
-            // Clean up highlighting after screenshot
+            // Step 8: Click the checkbox using WebDriver
+            LogUtil.info("Clicking the selected checkbox");
+            try {
+                // Try regular click first
+                selectedCheckbox.click();
+            } catch (Exception e) {
+                LogUtil.warn("Regular click failed, trying JavaScript click");
+                js.executeScript("arguments[0].click();", selectedCheckbox);
+            }
+
+            // Step 9: Clean up highlighting
+            LogUtil.info("Cleaning up highlighting");
+
+            // Remove indicator
             js.executeScript(
-                    "try {" +
-                            "  if (window.selectedCheckboxInfo) {" +
-                            "    var info = window.selectedCheckboxInfo;" +
-                            "    " +
-                            "    // Remove indicator" +
-                            "    if (info.indicator && info.indicator.parentNode) {" +
-                            "      info.indicator.parentNode.removeChild(info.indicator);" +
-                            "    }" +
-                            "    " +
-                            "    // Restore original styles" +
-                            "    if (info.row) {" +
-                            "      if (info.originalRowStyle) {" +
-                            "        info.row.setAttribute('style', info.originalRowStyle);" +
-                            "      } else {" +
-                            "        info.row.removeAttribute('style');" +
-                            "      }" +
-                            "    }" +
-                            "    " +
-                            "    if (info.checkbox) {" +
-                            "      if (info.originalCheckboxStyle) {" +
-                            "        info.checkbox.setAttribute('style', info.originalCheckboxStyle);" +
-                            "      } else {" +
-                            "        info.checkbox.removeAttribute('style');" +
-                            "      }" +
-                            "    }" +
-                            "    " +
-                            "    // Clean up" +
-                            "    delete window.selectedCheckboxInfo;" +
-                            "    console.log('Highlighting cleaned up');" +
-                            "  }" +
-                            "} catch (e) {" +
-                            "  console.error('Error cleaning up highlighting:', e);" +
+                    "var indicators = document.querySelectorAll('.checkbox-selection-indicator');" +
+                            "for (var i = 0; i < indicators.length; i++) {" +
+                            "  if (indicators[i].parentNode) indicators[i].parentNode.removeChild(indicators[i]);" +
                             "}"
             );
+
+            // Restore original styles
+            if (originalRowStyle != null && !originalRowStyle.isEmpty()) {
+                js.executeScript("arguments[0].setAttribute('style', arguments[1]);", selectedRow, originalRowStyle);
+            } else {
+                js.executeScript("arguments[0].removeAttribute('style');", selectedRow);
+            }
+
+            if (originalCheckboxStyle != null && !originalCheckboxStyle.isEmpty()) {
+                js.executeScript("arguments[0].setAttribute('style', arguments[1]);", selectedCheckbox, originalCheckboxStyle);
+            } else {
+                js.executeScript("arguments[0].removeAttribute('style');", selectedCheckbox);
+            }
 
             Thread.sleep(1000); // Wait for cleanup to complete
 
@@ -708,16 +704,17 @@ public class CBPKeywords {
                         finalScreenshotPath, "✅ FINAL: Checkbox Selected from " + gridTitle + " Grid");
             }
 
-            if (checkboxSelected != null && checkboxSelected) {
+            // Verify checkbox is selected
+            if (selectedCheckbox.isSelected()) {
                 LogUtil.info("Checkbox selected successfully from " + gridTitle + " grid");
                 ReportManager.logPass(context.getTestId(), context.getTestName(),
                         "Checkbox selected successfully from " + gridTitle + " grid");
                 return true;
             } else {
-                LogUtil.error("Failed to find or select checkbox from " + gridTitle + " grid");
-                context.setTestFailed("Failed to find or select checkbox from " + gridTitle + " grid");
+                LogUtil.error("Checkbox selection verification failed");
+                context.setTestFailed("Checkbox selection verification failed for " + gridTitle + " grid");
                 ReportManager.logFail(context.getTestId(), context.getTestName(),
-                        "Failed to find or select checkbox from " + gridTitle + " grid");
+                        "Checkbox selection verification failed for " + gridTitle + " grid");
                 return false;
             }
 
