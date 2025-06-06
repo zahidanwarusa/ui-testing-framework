@@ -584,20 +584,15 @@ public class CBPKeywords {
                             "    }" +
                             "  }" +
 
-                            // Step 7: Select the checkbox
+                            // Step 7: Select the checkbox immediately (no setTimeout in executeScript)
                             "  if (selectedCheckbox) {" +
                             "    console.log('Selecting checkbox');" +
                             "    selectedCheckbox.scrollIntoView({behavior: 'smooth', block: 'center'});" +
-                            "    " +
-                            "    // Wait a moment for scroll to complete" +
-                            "    setTimeout(function() {" +
-                            "      selectedCheckbox.focus();" +
-                            "      selectedCheckbox.checked = true;" +
-                            "      selectedCheckbox.dispatchEvent(new Event('input', { bubbles: true }));" +
-                            "      selectedCheckbox.dispatchEvent(new Event('change', { bubbles: true }));" +
-                            "      selectedCheckbox.click();" +
-                            "    }, 500);" +
-                            "    " +
+                            "    selectedCheckbox.focus();" +
+                            "    selectedCheckbox.checked = true;" +
+                            "    selectedCheckbox.dispatchEvent(new Event('input', { bubbles: true }));" +
+                            "    selectedCheckbox.dispatchEvent(new Event('change', { bubbles: true }));" +
+                            "    selectedCheckbox.click();" +
                             "    console.log('Checkbox selected successfully');" +
                             "    return true;" +
                             "  } else {" +
@@ -640,10 +635,10 @@ public class CBPKeywords {
             ReportManager.logFail(context.getTestId(), context.getTestName(),
                     "Failed to execute SELECT_SEARCH keyword: " + e.getMessage());
 
-            String failureScreenshotPath = ScreenshotUtils.takeScreenshot("Search_Selection_Failed");
+            String failureScreenshotPath = ScreenshotUtils.takeScreenshot("Checkbox_Selection_Failed");
             if (failureScreenshotPath != null) {
                 ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
-                        failureScreenshotPath, "Search Selection Failure");
+                        failureScreenshotPath, "Checkbox Selection Failure");
             }
             return false;
         }
