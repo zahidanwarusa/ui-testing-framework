@@ -584,16 +584,62 @@ public class CBPKeywords {
                             "    }" +
                             "  }" +
 
-                            // Step 7: Select the checkbox immediately (no setTimeout in executeScript)
+                            // Step 7: Highlight and select the checkbox
                             "  if (selectedCheckbox) {" +
                             "    console.log('Selecting checkbox');" +
                             "    selectedCheckbox.scrollIntoView({behavior: 'smooth', block: 'center'});" +
+                            "    " +
+                            "    // Get the row for highlighting" +
+                            "    var targetRow = selectedCheckbox.closest('tr');" +
+                            "    " +
+                            "    // Store original styles" +
+                            "    var originalRowStyle = targetRow ? targetRow.getAttribute('style') || '' : '';" +
+                            "    var originalCheckboxStyle = selectedCheckbox.getAttribute('style') || '';" +
+                            "    " +
+                            "    // Apply highlighting to the entire row and checkbox" +
+                            "    if (targetRow) {" +
+                            "      targetRow.style.backgroundColor = '#ffff99';" +
+                            "      targetRow.style.border = '3px solid #ff6600';" +
+                            "      targetRow.style.boxShadow = '0 0 10px #ff6600';" +
+                            "    }" +
+                            "    " +
+                            "    // Highlight the checkbox itself" +
+                            "    selectedCheckbox.style.transform = 'scale(1.5)';" +
+                            "    selectedCheckbox.style.border = '3px solid #ff0000';" +
+                            "    selectedCheckbox.style.boxShadow = '0 0 8px #ff0000';" +
+                            "    " +
+                            "    // Add a visual indicator next to the checkbox" +
+                            "    var indicator = document.createElement('span');" +
+                            "    indicator.innerHTML = ' ← SELECTED';" +
+                            "    indicator.style.color = '#ff0000';" +
+                            "    indicator.style.fontWeight = 'bold';" +
+                            "    indicator.style.fontSize = '14px';" +
+                            "    indicator.style.marginLeft = '10px';" +
+                            "    indicator.className = 'checkbox-selection-indicator';" +
+                            "    " +
+                            "    // Insert the indicator after the checkbox" +
+                            "    var checkboxCell = selectedCheckbox.closest('td');" +
+                            "    if (checkboxCell) {" +
+                            "      checkboxCell.appendChild(indicator);" +
+                            "    }" +
+                            "    " +
+                            "    // Store highlighting info for later cleanup" +
+                            "    window.selectedCheckboxInfo = {" +
+                            "      checkbox: selectedCheckbox," +
+                            "      row: targetRow," +
+                            "      originalRowStyle: originalRowStyle," +
+                            "      originalCheckboxStyle: originalCheckboxStyle," +
+                            "      indicator: indicator" +
+                            "    };" +
+                            "    " +
+                            "    // Select the checkbox" +
                             "    selectedCheckbox.focus();" +
                             "    selectedCheckbox.checked = true;" +
                             "    selectedCheckbox.dispatchEvent(new Event('input', { bubbles: true }));" +
                             "    selectedCheckbox.dispatchEvent(new Event('change', { bubbles: true }));" +
                             "    selectedCheckbox.click();" +
-                            "    console.log('Checkbox selected successfully');" +
+                            "    " +
+                            "    console.log('Checkbox selected and highlighted successfully');" +
                             "    return true;" +
                             "  } else {" +
                             "    console.log('No available checkbox found in grid');" +
@@ -607,13 +653,59 @@ public class CBPKeywords {
                     gridTitle
             );
 
-            Thread.sleep(3000); // Wait for any checkbox selection to complete
+            Thread.sleep(2000); // Wait for highlighting to be visible
 
-            // Take screenshot after selection
-            String screenshotPath = ScreenshotUtils.takeScreenshot("Checkbox_Selected_" + gridTitle.replace(" ", "_"));
-            if (screenshotPath != null) {
+            // Take screenshot with highlighting
+            String highlightedScreenshotPath = ScreenshotUtils.takeScreenshot("Checkbox_HIGHLIGHTED_" + gridTitle.replace(" ", "_"));
+            if (highlightedScreenshotPath != null) {
                 ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
-                        screenshotPath, "Checkbox Selected from " + gridTitle + " Grid");
+                        highlightedScreenshotPath, "🎯 HIGHLIGHTED: Checkbox Selected from " + gridTitle + " Grid");
+            }
+
+            // Clean up highlighting after screenshot
+            js.executeScript(
+                    "try {" +
+                            "  if (window.selectedCheckboxInfo) {" +
+                            "    var info = window.selectedCheckboxInfo;" +
+                            "    " +
+                            "    // Remove indicator" +
+                            "    if (info.indicator && info.indicator.parentNode) {" +
+                            "      info.indicator.parentNode.removeChild(info.indicator);" +
+                            "    }" +
+                            "    " +
+                            "    // Restore original styles" +
+                            "    if (info.row) {" +
+                            "      if (info.originalRowStyle) {" +
+                            "        info.row.setAttribute('style', info.originalRowStyle);" +
+                            "      } else {" +
+                            "        info.row.removeAttribute('style');" +
+                            "      }" +
+                            "    }" +
+                            "    " +
+                            "    if (info.checkbox) {" +
+                            "      if (info.originalCheckboxStyle) {" +
+                            "        info.checkbox.setAttribute('style', info.originalCheckboxStyle);" +
+                            "      } else {" +
+                            "        info.checkbox.removeAttribute('style');" +
+                            "      }" +
+                            "    }" +
+                            "    " +
+                            "    // Clean up" +
+                            "    delete window.selectedCheckboxInfo;" +
+                            "    console.log('Highlighting cleaned up');" +
+                            "  }" +
+                            "} catch (e) {" +
+                            "  console.error('Error cleaning up highlighting:', e);" +
+                            "}"
+            );
+
+            Thread.sleep(1000); // Wait for cleanup to complete
+
+            // Take final screenshot after cleanup
+            String finalScreenshotPath = ScreenshotUtils.takeScreenshot("Checkbox_Selected_Final_" + gridTitle.replace(" ", "_"));
+            if (finalScreenshotPath != null) {
+                ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
+                        finalScreenshotPath, "✅ FINAL: Checkbox Selected from " + gridTitle + " Grid");
             }
 
             if (checkboxSelected != null && checkboxSelected) {
