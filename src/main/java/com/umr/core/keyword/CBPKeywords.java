@@ -1977,21 +1977,59 @@ public class CBPKeywords {
                                     "return false;"
                     );
 
-                    Thread.sleep(3000);
+                    Thread.sleep(5000); // Wait for deletion to process
 
-                    // Take screenshot after deletion
-                    String screenshotPath = ScreenshotUtils.takeScreenshot("Traveler_Deleted");
-                    if (screenshotPath != null) {
-                        ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
-                                screenshotPath, "Traveler Deleted");
+                    // ============================================
+                    // 🚨 NEW: CHECK FOR ERROR TOAST MESSAGES 🚨
+                    // ============================================
+                    LogUtil.info("Checking for error toast messages after delete operation");
+
+                    String errorToastInfo = checkForErrorToast(js, context);
+
+                    if (errorToastInfo != null) {
+                        // Error toast found - this indicates deletion failed
+                        LogUtil.error("❌ DELETE TRAVELER FAILED - Error toast detected: " + errorToastInfo);
+                        context.setTestFailed("Delete Traveler operation failed with error: " + errorToastInfo);
+                        ReportManager.logFail(context.getTestId(), context.getTestName(),
+                                "❌ Delete Traveler FAILED - Error toast detected: " + errorToastInfo);
+
+                        // Take comprehensive failure screenshot
+                        String errorScreenshotPath = ScreenshotUtils.takeScreenshot("DELETE_TRAVELER_ERROR_TOAST");
+                        if (errorScreenshotPath != null) {
+                            ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
+                                    errorScreenshotPath, "🚨 ERROR TOAST - Delete Traveler Failed: " + errorToastInfo);
+                        }
+
+                        // Try to close the error toast before returning
+                        closeErrorToast(js);
+
+                        return false; // Test fails when error toast appears
                     }
 
-                    LogUtil.info("Delete traveler process completed - Delete clicked: " + deleteClicked +
-                            ", Confirmation handled: " + confirmationHandled);
+                    // No error toast found - check for success indicators
+                    LogUtil.info("✅ No error toast detected - checking for success indicators");
+
+                    // Wait a bit more to see if page redirects or shows success
+                    Thread.sleep(3000);
+
+                    // Check if we're redirected away from the person page (indicates success)
+                    String currentUrl = driver.getCurrentUrl();
+                    LogUtil.info("Current URL after deletion: " + currentUrl);
+
+                    // Take screenshot after deletion (success case)
+                    String screenshotPath = ScreenshotUtils.takeScreenshot("Traveler_Deleted_Success");
+                    if (screenshotPath != null) {
+                        ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
+                                screenshotPath, "✅ Traveler Deleted Successfully");
+                    }
+
+                    LogUtil.info("✅ Delete traveler process completed successfully - Delete clicked: " + deleteClicked +
+                            ", Confirmation handled: " + confirmationHandled + ", No error toast detected");
                     ReportManager.logPass(context.getTestId(), context.getTestName(),
-                            "Traveler deletion completed successfully - Delete clicked: " + deleteClicked +
-                                    ", Confirmation: " + confirmationHandled);
+                            "✅ Traveler deletion completed successfully - Delete clicked: " + deleteClicked +
+                                    ", Confirmation: " + confirmationHandled + ", No errors detected");
                     return true;
+
                 } else {
                     LogUtil.error("Delete Traveler option not found in action dropdown");
                     context.setTestFailed("Delete Traveler option not found in action dropdown");
@@ -2024,12 +2062,140 @@ public class CBPKeywords {
             context.setTestFailed("Failed to delete traveler: " + e.getMessage());
             ReportManager.logFail(context.getTestId(), context.getTestName(), "Failed to delete traveler: " + e.getMessage());
 
-            String failureScreenshotPath = ScreenshotUtils.takeScreenshot("Delete_Traveler_Failed");
+            String failureScreenshotPath = ScreenshotUtils.takeScreenshot("Delete_Traveler_Exception");
             if (failureScreenshotPath != null) {
                 ReportManager.attachScreenshot(context.getTestId(), context.getTestName(),
-                        failureScreenshotPath, "Delete Traveler Failure");
+                        failureScreenshotPath, "Delete Traveler Exception Failure");
             }
             return false;
+        }
+    }
+
+    /**
+     * Helper method to check for error toast messages on the page
+     * Returns error message if found, null if no error toast detected
+     */
+    private String checkForErrorToast(JavascriptExecutor js, TestContext context) {
+        try {
+            LogUtil.info("🔍 Scanning page for error toast messages...");
+
+            // Check for error toast using multiple strategies
+            String errorInfo = (String) js.executeScript(
+                    "try {" +
+                            "  var errorMessages = [];" +
+                            "  " +
+                            "  // Strategy 1: Look for p-toastitem with error classes" +
+                            "  var toastItems = document.querySelectorAll('p-toastitem');" +
+                            "  for (var i = 0; i < toastItems.length; i++) {" +
+                            "    var toast = toastItems[i];" +
+                            "    if (toast.offsetParent !== null) {" + // Check if visible
+                            "      var errorDiv = toast.querySelector('.p-toast-message-error, .errorMessage');" +
+                            "      if (errorDiv) {" +
+                            "        var summary = toast.querySelector('.p-toast-summary');" +
+                            "        var detail = toast.querySelector('.p-toast-detail');" +
+                            "        var summaryText = summary ? summary.textContent.trim() : 'Unknown Error';" +
+                            "        var detailText = detail ? detail.textContent.trim() : 'No details available';" +
+                            "        errorMessages.push('TOAST ERROR - ' + summaryText + ': ' + detailText);" +
+                            "      }" +
+                            "    }" +
+                            "  }" +
+                            "  " +
+                            "  // Strategy 2: Look for any error toast by class names" +
+                            "  var errorToasts = document.querySelectorAll('.p-toast-message-error, .errorMessage, .error-toast');" +
+                            "  for (var j = 0; j < errorToasts.length; j++) {" +
+                            "    var errorToast = errorToasts[j];" +
+                            "    if (errorToast.offsetParent !== null) {" + // Check if visible
+                            "      var text = errorToast.textContent || errorToast.innerText;" +
+                            "      if (text && text.trim().length > 0) {" +
+                            "        errorMessages.push('ERROR ELEMENT - ' + text.trim().substring(0, 200));" +
+                            "      }" +
+                            "    }" +
+                            "  }" +
+                            "  " +
+                            "  // Strategy 3: Look for specific error patterns in visible text" +
+                            "  var allElements = document.querySelectorAll('*');" +
+                            "  for (var k = 0; k < allElements.length; k++) {" +
+                            "    var element = allElements[k];" +
+                            "    if (element.offsetParent !== null) {" + // Check if visible
+                            "      var elementText = element.textContent || element.innerText;" +
+                            "      if (elementText) {" +
+                            "        var text = elementText.trim();" +
+                            "        if ((text.includes('Action Error') || " +
+                            "             text.includes('Index') && text.includes('out of bounds') || " +
+                            "             text.includes('Error') && text.includes('0 out of bounds for length 0')) && " +
+                            "            text.length < 500) {" + // Avoid capturing entire page content
+                            "          errorMessages.push('ERROR PATTERN - ' + text.substring(0, 200));" +
+                            "        }" +
+                            "      }" +
+                            "    }" +
+                            "  }" +
+                            "  " +
+                            "  // Return first error found or null if none" +
+                            "  return errorMessages.length > 0 ? errorMessages[0] : null;" +
+                            "  " +
+                            "} catch (e) {" +
+                            "  return 'ERROR_CHECKING_FAILED: ' + e.message;" +
+                            "}"
+            );
+
+            if (errorInfo != null && !errorInfo.isEmpty()) {
+                LogUtil.info("🚨 ERROR TOAST DETECTED: " + errorInfo);
+
+                // Also log what's currently visible on the page for debugging
+                String pageInfo = (String) js.executeScript(
+                        "var visibleText = '';" +
+                                "var bodyText = document.body.textContent || document.body.innerText;" +
+                                "if (bodyText) {" +
+                                "  visibleText = bodyText.substring(0, 800);" +
+                                "}" +
+                                "return 'CURRENT PAGE CONTENT: ' + visibleText;"
+                );
+                LogUtil.info("📄 " + pageInfo);
+
+                return errorInfo;
+            } else {
+                LogUtil.info("✅ No error toast messages detected");
+                return null;
+            }
+
+        } catch (Exception e) {
+            LogUtil.error("Exception while checking for error toast", e);
+            return "TOAST_CHECK_EXCEPTION: " + e.getMessage();
+        }
+    }
+
+    /**
+     * Helper method to attempt closing error toast messages
+     */
+    private void closeErrorToast(JavascriptExecutor js) {
+        try {
+            LogUtil.info("🔄 Attempting to close error toast messages...");
+
+            Boolean toastClosed = (Boolean) js.executeScript(
+                    "try {" +
+                            "  var closeButtons = document.querySelectorAll('.p-toast-icon-close, .toast-close, .p-toast-icon-close-icon');" +
+                            "  var closed = false;" +
+                            "  for (var i = 0; i < closeButtons.length; i++) {" +
+                            "    if (closeButtons[i].offsetParent !== null) {" + // Check if visible
+                            "      closeButtons[i].click();" +
+                            "      closed = true;" +
+                            "    }" +
+                            "  }" +
+                            "  return closed;" +
+                            "} catch (e) {" +
+                            "  return false;" +
+                            "}"
+            );
+
+            if (toastClosed) {
+                LogUtil.info("✅ Error toast closed successfully");
+                Thread.sleep(1000); // Wait for close animation
+            } else {
+                LogUtil.info("ℹ️ No closeable error toast found or already closed");
+            }
+
+        } catch (Exception e) {
+            LogUtil.warn("Exception while trying to close error toast", e);
         }
     }
 
